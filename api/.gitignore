@@ -33,3 +33,5 @@ temp/
 
 # Optional lock files if using pnpm (pnpm workspace)
 .pnpm-store/
+
+/generated/prisma

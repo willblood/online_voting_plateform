@@ -1,98 +1,459 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+1. Project Overview
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+This backend system manages:
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+Multi-level geographic hierarchy
+(District → City → Municipality)
 
-## Description
+User identity & roles (VOTER, ADMIN, OBSERVER)
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+Election lifecycle
 
-## Project setup
+Candidate management
 
-```bash
-$ npm install
-```
+Election registration
 
-## Compile and run the project
+Secure encrypted voting
 
-```bash
-# development
-$ npm run start
+Multi-level result aggregation:
 
-# watch mode
-$ npm run start:dev
+Municipality
 
-# production mode
-$ npm run start:prod
-```
+City
 
-## Run tests
+District
 
-```bash
-# unit tests
-$ npm run test
+National
 
-# e2e tests
-$ npm run test:e2e
+The system ensures:
 
-# test coverage
-$ npm run test:cov
-```
+One vote per user per election
 
-## Deployment
+Election-specific registrations
 
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
+Secure vote storage
 
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
+Aggregated statistics per administrative level
 
-```bash
-$ npm install -g @nestjs/mau
-$ mau deploy
-```
+🏗️ 2. High-Level Backend Structure
+src/
+│
+├── main.ts
+├── app.module.ts
+│
+├── config/
+├── database/
+├── common/
+├── shared/
+│
+└── modules/
+    ├── geography/
+    ├── users/
+    ├── auth/
+    ├── profiles/
+    ├── elections/
+    ├── candidates/
+    ├── registrations/
+    ├── voting/
+    ├── results/
+    ├── analytics/
+🧩 3. Module Structure Based on Your Tables
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+We group modules logically based on domain boundaries.
 
-## Resources
+🌍 4. Geography Module
 
-Check out a few resources that may come in handy when working with NestJS:
+Based on:
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+districts
 
-## Support
+cities
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+municipalities
 
-## Stay in touch
+modules/geography/
+│
+├── districts/
+│   ├── district.entity.ts
+│   ├── districts.controller.ts
+│   ├── districts.service.ts
+│   ├── dto/
+│
+├── cities/
+│   ├── city.entity.ts
+│   ├── cities.controller.ts
+│   ├── cities.service.ts
+│   ├── dto/
+│
+├── municipalities/
+│   ├── municipality.entity.ts
+│   ├── municipalities.controller.ts
+│   ├── municipalities.service.ts
+│   ├── dto/
+│
+└── geography.module.ts
+Responsibilities
 
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+Manage territorial hierarchy
 
-## License
+Ensure relational integrity
 
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+Provide geographic lookup endpoints
+
+👤 5. Users Module
+
+Based on:
+
+users
+
+profiles
+
+modules/users/
+│
+├── entities/
+│   ├── user.entity.ts
+│   ├── profile.entity.ts
+│
+├── users.controller.ts
+├── users.service.ts
+├── dto/
+│
+└── users.module.ts
+Responsibilities
+
+Create voter accounts
+
+Assign roles
+
+Link user to municipality
+
+Manage activation status
+
+Manage personal profile
+
+🔐 6. Auth Module
+modules/auth/
+│
+├── auth.controller.ts
+├── auth.service.ts
+├── jwt.strategy.ts
+├── local.strategy.ts
+├── dto/
+│
+└── auth.module.ts
+Responsibilities
+
+Login
+
+JWT issuance
+
+Role validation
+
+Password hashing
+
+Token verification
+
+🗳️ 7. Elections Module
+
+Based on:
+
+elections
+
+modules/elections/
+│
+├── entities/
+│   └── election.entity.ts
+│
+├── elections.controller.ts
+├── elections.service.ts
+├── dto/
+│
+└── elections.module.ts
+Responsibilities
+
+Create elections
+
+Manage election status:
+
+UPCOMING
+
+OPEN
+
+CLOSED
+
+Validate election time window
+
+Election lifecycle management
+
+🧑‍💼 8. Candidates Module
+
+Based on:
+
+candidates
+
+modules/candidates/
+│
+├── entities/
+│   └── candidate.entity.ts
+│
+├── candidates.controller.ts
+├── candidates.service.ts
+├── dto/
+│
+└── candidates.module.ts
+Responsibilities
+
+Add candidates per election
+
+Associate with election
+
+Manage candidate info
+
+📝 9. Registration Module
+
+Based on:
+
+election_registrations
+
+modules/registrations/
+│
+├── entities/
+│   └── election-registration.entity.ts
+│
+├── registrations.controller.ts
+├── registrations.service.ts
+├── dto/
+│
+└── registrations.module.ts
+Responsibilities
+
+Register voter to election
+
+Prevent duplicate registration
+
+Link voter to municipality
+
+Validate registration before voting
+
+🗳️ 10. Voting Module
+
+Based on:
+
+votes
+
+modules/voting/
+│
+├── entities/
+│   └── vote.entity.ts
+│
+├── voting.controller.ts
+├── voting.service.ts
+├── dto/
+│
+└── voting.module.ts
+Responsibilities
+
+Accept encrypted vote
+
+Ensure:
+
+One vote per user per election
+
+Generate receipt code
+
+Validate election is OPEN
+
+Verify voter is registered
+
+📊 11. Results Module
+
+Based on:
+
+municipality_results
+
+city_results
+
+district_results
+
+national_results
+
+modules/results/
+│
+├── municipality-results/
+│   ├── entity.ts
+│   ├── service.ts
+│
+├── city-results/
+│   ├── entity.ts
+│   ├── service.ts
+│
+├── district-results/
+│   ├── entity.ts
+│   ├── service.ts
+│
+├── national-results/
+│   ├── entity.ts
+│   ├── service.ts
+│
+├── results.controller.ts
+└── results.module.ts
+Responsibilities
+
+Store aggregated vote counts
+
+Maintain unique indexes
+
+Prevent duplication
+
+Store turnout percentage
+
+📈 12. Analytics Module
+modules/analytics/
+│
+├── analytics.controller.ts
+├── analytics.service.ts
+└── analytics.module.ts
+Responsibilities
+
+Compute participation rates
+
+Compare elections
+
+Generate dashboard statistics
+
+Calculate turnout percentage
+
+Compute candidate rankings
+
+This module performs aggregation logic.
+
+🧠 13. Common Folder
+common/
+│
+├── decorators/
+├── guards/
+├── enums/
+│   ├── role.enum.ts
+│   ├── election-status.enum.ts
+│   ├── election-type.enum.ts
+│
+├── filters/
+├── interceptors/
+├── pipes/
+
+Used for:
+
+Role guards
+
+JWT guard
+
+Validation pipes
+
+Global error handling
+
+⚙️ 14. Database Layer
+
+If using Prisma:
+
+database/
+├── prisma.service.ts
+├── prisma.module.ts
+
+If using TypeORM:
+
+database/
+├── database.module.ts
+🔄 15. Core Business Flows
+🗳️ Voting Flow
+
+User logs in.
+
+User registers for election.
+
+Election status must be OPEN.
+
+Vote submitted (encrypted).
+
+System verifies:
+
+User not already voted.
+
+Receipt generated.
+
+Vote stored.
+
+📊 Result Aggregation Flow
+
+After voting closes:
+
+Municipality results computed.
+
+City results aggregated.
+
+District results aggregated.
+
+National results computed.
+
+Turnout percentages calculated.
+
+🔐 16. Security Design
+
+JWT authentication
+
+Role-based guards
+
+Unique DB constraints:
+
+(user_id, election_id) on votes
+
+Encrypted vote storage
+
+Receipt code uniqueness
+
+Election time validation
+
+🚀 17. Scalability & Future Evolution
+
+This structure allows:
+
+Splitting into microservices:
+
+Auth Service
+
+Voting Service
+
+Results Service
+
+Event-driven architecture
+
+Redis caching for analytics
+
+Blockchain vote verification layer
+
+🏁 Final Architecture Summary
+
+Your backend is organized around:
+
+Domain	Module
+Geography	geography
+Identity	users + profiles
+Authentication	auth
+Election lifecycle	elections
+Candidates	candidates
+Registration	registrations
+Voting	voting
+Aggregation	results
+Analytics	analytics
+🎓 Why This Structure is Strong
+
+Domain-driven
+
+Clean separation of concerns
+
+Matches your DB schema perfectly
+
+Ready for scaling
+
+Production-level organization
+
+Microservice migration friendly
