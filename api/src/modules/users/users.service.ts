@@ -86,8 +86,6 @@ export class UsersService {
   }
 
   async update(id: string, updateUserDto: UpdateUserDto) {
-    await this.findOne(id);
-
     try {
       return await this.prisma.user.update({
         where: { id },
@@ -104,6 +102,13 @@ export class UsersService {
         },
       });
     } catch (error: any) {
+      if (error.code === 'P2025') {
+        throw new NotFoundException(`User with id "${id}" not found`);
+      }
+      if (error.code === 'P2002') {
+        const field = error.meta?.target?.[0] ?? 'field';
+        throw new ConflictException(`A user with this ${field} already exists`);
+      }
       if (error.code === 'P2003') {
         throw new BadRequestException('The provided municipality_id does not exist');
       }
@@ -111,9 +116,17 @@ export class UsersService {
     }
   }
 
-  async remove(id: string) {
-    await this.findOne(id);
-
-    return this.prisma.user.delete({ where: { id } });
+  async remove(id: string): Promise<void> {
+    try {
+      await this.prisma.user.delete({
+        where: { id },
+        select: { id: true },
+      });
+    } catch (error: any) {
+      if (error.code === 'P2025') {
+        throw new NotFoundException(`User with id "${id}" not found`);
+      }
+      throw error;
+    }
   }
 }
