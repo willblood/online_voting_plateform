@@ -15,159 +15,210 @@ enum Role {
   OBSERVER
 }
 
+enum UserStatus {
+  PENDING_OTP
+  ACTIVE
+  SUSPENDED
+}
+
 enum ElectionType {
-  PRESIDENTIAL
-  MUNICIPAL
-  LEGISLATIVE
+  PRESIDENTIELLE
+  LEGISLATIVES
+  REGIONALES
+  MUNICIPALES
   REFERENDUM
 }
 
 enum ElectionStatus {
-  UPCOMING
-  OPEN
-  CLOSED
+  BROUILLON
+  OUVERT
+  EN_COURS
+  CLOS
+  PUBLIE
 }
 
-// ─── Geography ────────────────────────────────────────────────────────────────
+enum GeographicScope {
+  NATIONAL
+  REGIONAL
+  DEPARTEMENTAL
+  COMMUNAL
+}
 
-model District {
-  id         String    @id @default(uuid()) @db.Uuid
-  name       String    @unique
+// ─── Geography (Côte d'Ivoire hierarchy) ──────────────────────────────────────
+
+model Region {
+  id         String   @id @default(uuid()) @db.Uuid
+  name       String   @unique
+  code       String   @unique
   population Int
-  area_km2   Decimal?  @db.Decimal(10, 2)
-  created_at DateTime? @default(now())
+  created_at DateTime @default(now())
 
-  cities          City[]
-  district_results DistrictResult[]
+  departements     Departement[]
+  elections_scoped Election[]    @relation("RegionElections")
 
-  @@map("districts")
+  @@map("regions")
 }
 
-model City {
-  id          String    @id @default(uuid()) @db.Uuid
-  district_id String    @db.Uuid
-  name        String
-  population  Int
-  area_km2    Decimal?  @db.Decimal(10, 2)
-  created_at  DateTime? @default(now())
-
-  district     District     @relation(fields: [district_id], references: [id])
-  municipalities Municipality[]
-  city_results  CityResult[]
-
-  @@map("cities")
-}
-
-model Municipality {
-  id         String    @id @default(uuid()) @db.Uuid
-  city_id    String    @db.Uuid
+model Departement {
+  id         String   @id @default(uuid()) @db.Uuid
+  region_id  String   @db.Uuid
   name       String
+  code       String   @unique
   population Int
-  created_at DateTime? @default(now())
+  created_at DateTime @default(now())
 
-  city                  City                   @relation(fields: [city_id], references: [id])
-  users                 User[]
-  election_registrations ElectionRegistration[]
-  municipality_results   MunicipalityResult[]
+  region           Region     @relation(fields: [region_id], references: [id])
+  communes         Commune[]
+  elections_scoped Election[] @relation("DepartementElections")
 
-  @@map("municipalities")
+  @@map("departements")
+}
+
+model Commune {
+  id             String   @id @default(uuid()) @db.Uuid
+  departement_id String   @db.Uuid
+  name           String
+  population     Int
+  created_at     DateTime @default(now())
+
+  departement      Departement    @relation(fields: [departement_id], references: [id])
+  bureaux          BureauDeVote[]
+  users            User[]
+  elections_scoped Election[]     @relation("CommuneElections")
+
+  @@map("communes")
+}
+
+model BureauDeVote {
+  id         String   @id @default(uuid()) @db.Uuid
+  commune_id String   @db.Uuid
+  name       String
+  address    String?
+  capacity   Int?
+  created_at DateTime @default(now())
+
+  commune Commune @relation(fields: [commune_id], references: [id])
+  users   User[]
+
+  @@map("bureaux_de_vote")
 }
 
 // ─── Users ────────────────────────────────────────────────────────────────────
 
 model User {
-  id              String    @id @default(uuid()) @db.Uuid
-  national_id     String    @unique
-  email           String    @unique
-  password_hash   String
-  role            Role
-  municipality_id String    @db.Uuid
-  is_active       Boolean?  @default(true)
-  created_at      DateTime? @default(now())
-  updated_at      DateTime? @updatedAt
+  id            String     @id @default(uuid()) @db.Uuid
+  national_id   String     @unique
+  email         String     @unique
+  password_hash String
+  role          Role       @default(VOTER)
+  status        UserStatus @default(PENDING_OTP)
 
-  municipality           Municipality           @relation(fields: [municipality_id], references: [id])
-  profile                Profile?
-  election_registrations ElectionRegistration[]
-  votes                  Vote[]
+  first_name    String
+  last_name     String
+  date_of_birth DateTime  @db.Date
+  phone_number  String    @unique
+
+  commune_id        String  @db.Uuid
+  bureau_de_vote_id String? @db.Uuid
+
+  // Mock OTP fields
+  otp_code       String?
+  otp_expires_at DateTime?
+  otp_attempts   Int       @default(0)
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  commune Commune       @relation(fields: [commune_id], references: [id])
+  bureau  BureauDeVote? @relation(fields: [bureau_de_vote_id], references: [id])
+  votes   Vote[]
 
   @@map("users")
 }
 
-model Profile {
-  id             String    @id @default(uuid()) @db.Uuid
-  user_id        String    @unique @db.Uuid
-  first_name     String
-  last_name      String
-  date_of_birth  DateTime  @db.Date
-  phone_number   String?
-  gender         String?
-  created_at     DateTime? @default(now())
+// ─── Political Parties ────────────────────────────────────────────────────────
 
-  user User @relation(fields: [user_id], references: [id])
+model PoliticalParty {
+  id           String   @id @default(uuid()) @db.Uuid
+  name         String   @unique
+  acronym      String   @unique
+  logo_url     String?
+  founded_year Int?
+  description  String?
+  created_at   DateTime @default(now())
 
-  @@map("profiles")
+  candidates Candidate[]
+
+  @@map("political_parties")
 }
 
 // ─── Elections ────────────────────────────────────────────────────────────────
 
 model Election {
-  id          String         @id @default(uuid()) @db.Uuid
-  title       String
-  type        ElectionType
-  description String?
-  start_time  DateTime
-  end_time    DateTime
-  status      ElectionStatus @default(UPCOMING)
-  created_at  DateTime?      @default(now())
-  updated_at  DateTime?      @updatedAt
+  id               String          @id @default(uuid()) @db.Uuid
+  title            String
+  type             ElectionType
+  description      String?
+  status           ElectionStatus  @default(BROUILLON)
+  geographic_scope GeographicScope @default(NATIONAL)
 
-  candidates             Candidate[]
-  election_registrations ElectionRegistration[]
-  votes                  Vote[]
-  municipality_results   MunicipalityResult[]
-  city_results           CityResult[]
-  district_results       DistrictResult[]
-  national_results       NationalResult[]
+  scope_region_id      String? @db.Uuid
+  scope_departement_id String? @db.Uuid
+  scope_commune_id     String? @db.Uuid
+
+  start_time DateTime
+  end_time   DateTime
+
+  round              Int     @default(1)
+  parent_election_id String? @db.Uuid
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  scope_region      Region?      @relation("RegionElections", fields: [scope_region_id], references: [id])
+  scope_departement Departement? @relation("DepartementElections", fields: [scope_departement_id], references: [id])
+  scope_commune     Commune?     @relation("CommuneElections", fields: [scope_commune_id], references: [id])
+  parent_election   Election?    @relation("ElectionRounds", fields: [parent_election_id], references: [id])
+  child_elections   Election[]   @relation("ElectionRounds")
+
+  candidates Candidate[]
+  votes      Vote[]
+  results    ElectionResult[]
 
   @@map("elections")
 }
 
 model Candidate {
-  id          String    @id @default(uuid()) @db.Uuid
-  election_id String    @db.Uuid
+  id          String  @id @default(uuid()) @db.Uuid
+  election_id String  @db.Uuid
+  party_id    String? @db.Uuid
+
   first_name  String
   last_name   String
-  party_name  String?
   photo_url   String?
-  created_at  DateTime? @default(now())
+  biography   String?
+  program_url String?
 
-  election             Election             @relation(fields: [election_id], references: [id])
-  votes                Vote[]
-  municipality_results MunicipalityResult[]
-  city_results         CityResult[]
-  district_results     DistrictResult[]
-  national_results     NationalResult[]
+  running_mate_id String? @db.Uuid
+
+  nationality_verified  Boolean @default(false)
+  criminal_record_clear Boolean @default(false)
+  age_verified          Boolean @default(false)
+
+  created_at DateTime @default(now())
+
+  election     Election        @relation(fields: [election_id], references: [id])
+  party        PoliticalParty? @relation(fields: [party_id], references: [id])
+  running_mate Candidate?      @relation("RunningMate", fields: [running_mate_id], references: [id])
+  mate_of      Candidate[]     @relation("RunningMate")
+
+  votes   Vote[]
+  results ElectionResult[]
 
   @@map("candidates")
 }
 
-// ─── Registrations & Votes ────────────────────────────────────────────────────
-
-model ElectionRegistration {
-  id              String   @id @default(uuid()) @db.Uuid
-  election_id     String   @db.Uuid
-  user_id         String   @db.Uuid
-  municipality_id String   @db.Uuid
-  registered_at   DateTime @default(now())
-
-  election     Election     @relation(fields: [election_id], references: [id])
-  user         User         @relation(fields: [user_id], references: [id])
-  municipality Municipality @relation(fields: [municipality_id], references: [id])
-
-  @@unique([election_id, user_id])
-  @@map("election_registrations")
-}
+// ─── Votes ────────────────────────────────────────────────────────────────────
 
 model Vote {
   id             String   @id @default(uuid()) @db.Uuid
@@ -186,70 +237,24 @@ model Vote {
   @@map("votes")
 }
 
-// ─── Results ──────────────────────────────────────────────────────────────────
+// ─── Results (auto-computed, never manually entered) ──────────────────────────
 
-model MunicipalityResult {
-  id                  String   @id @default(uuid()) @db.Uuid
-  election_id         String   @db.Uuid
-  municipality_id     String   @db.Uuid
-  candidate_id        String   @db.Uuid
-  votes_count         Int?
-  registered_voters   Int?
-  turnout_percentage  Decimal? @db.Decimal(5, 2)
+model ElectionResult {
+  id           String          @id @default(uuid()) @db.Uuid
+  election_id  String          @db.Uuid
+  candidate_id String          @db.Uuid
+  scope        GeographicScope
+  scope_id     String?         @db.Uuid
 
-  election     Election     @relation(fields: [election_id], references: [id])
-  municipality Municipality @relation(fields: [municipality_id], references: [id])
-  candidate    Candidate    @relation(fields: [candidate_id], references: [id])
+  votes_count        Int     @default(0)
+  registered_voters  Int     @default(0)
+  turnout_percentage Decimal @db.Decimal(5, 2)
 
-  @@unique([election_id, municipality_id, candidate_id])
-  @@map("municipality_results")
-}
-
-model CityResult {
-  id                 String   @id @default(uuid()) @db.Uuid
-  election_id        String   @db.Uuid
-  city_id            String   @db.Uuid
-  candidate_id       String   @db.Uuid
-  votes_count        Int?
-  registered_voters  Int?
-  turnout_percentage Decimal? @db.Decimal(5, 2)
-
-  election  Election  @relation(fields: [election_id], references: [id])
-  city      City      @relation(fields: [city_id], references: [id])
-  candidate Candidate @relation(fields: [candidate_id], references: [id])
-
-  @@unique([election_id, city_id, candidate_id])
-  @@map("city_results")
-}
-
-model DistrictResult {
-  id                 String   @id @default(uuid()) @db.Uuid
-  election_id        String   @db.Uuid
-  district_id        String   @db.Uuid
-  candidate_id       String   @db.Uuid
-  votes_count        Int?
-  registered_voters  Int?
-  turnout_percentage Decimal? @db.Decimal(5, 2)
-
-  election  Election  @relation(fields: [election_id], references: [id])
-  district  District  @relation(fields: [district_id], references: [id])
-  candidate Candidate @relation(fields: [candidate_id], references: [id])
-
-  @@unique([election_id, district_id, candidate_id])
-  @@map("district_results")
-}
-
-model NationalResult {
-  id                 String   @id @default(uuid()) @db.Uuid
-  election_id        String   @db.Uuid
-  candidate_id       String   @db.Uuid
-  votes_count        Int?
-  registered_voters  Int?
-  turnout_percentage Decimal? @db.Decimal(5, 2)
+  computed_at DateTime @default(now())
 
   election  Election  @relation(fields: [election_id], references: [id])
   candidate Candidate @relation(fields: [candidate_id], references: [id])
 
-  @@unique([election_id, candidate_id])
-  @@map("national_results")
+  @@unique([election_id, candidate_id, scope, scope_id])
+  @@map("election_results")
 }

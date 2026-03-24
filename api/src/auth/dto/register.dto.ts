@@ -1,7 +1,6 @@
 import {
   IsDateString,
   IsEmail,
-  IsEnum,
   IsNotEmpty,
   IsOptional,
   IsString,
@@ -9,11 +8,13 @@ import {
   Matches,
   MinLength,
 } from 'class-validator';
-import { Role } from '../../../common/enums/role.enum.js';
 
-export class CreateUserDto {
+export class RegisterDto {
   @IsString()
   @IsNotEmpty()
+  @Matches(/^[A-Z]{2}\d{10}$/, {
+    message: 'national_id must be 2 uppercase letters followed by 10 digits (e.g. CI0012345678)',
+  })
   national_id: string;
 
   @IsString()
@@ -42,9 +43,6 @@ export class CreateUserDto {
   @MinLength(8)
   @IsNotEmpty()
   password: string;
-
-  @IsEnum(Role)
-  role: Role;
 
   @IsUUID()
   commune_id: string;
