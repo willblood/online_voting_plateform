@@ -1,133 +1,20 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router";
-import type { Route } from "./+types/home";
+import type { Route } from "./+types/login";
 
 export function meta({}: Route.MetaArgs) {
   return [
-    { title: "Login — AGORA Election Platform" },
-    { name: "description", content: "Sign in to access the election management command center." },
+    { title: "Connexion | VOTI CI" },
+    { name: "description", content: "Accédez à votre espace sécurisé VOTI CI." },
   ];
 }
 
-const C = {
-  void: "#03030c",
-  base: "#07071a",
-  surface: "#0d0d24",
-  elevated: "#13132e",
-  border: "#1e1e48",
-  borderMid: "#2a2a60",
-  gold: "#c8a84b",
-  goldBright: "#e8c86a",
-  goldDim: "rgba(200,168,75,0.10)",
-  text: "#f0f0fc",
-  textDim: "#9090c0",
-  textMuted: "#404078",
-  teal: "#00d4a0",
-  red: "#ff3d5c",
-  redDim: "rgba(255,61,92,0.12)",
-};
-const F = {
-  display: '"Cormorant Garamond", Georgia, serif',
-  mono: '"DM Mono", monospace',
-  ui: '"Sora", system-ui, sans-serif',
-};
-
-// ── Hex grid background pattern ────────────────────────────────────────────────
-function HexPattern() {
-  return (
-    <svg
-      style={{ position: "absolute", inset: 0, width: "100%", height: "100%", opacity: 0.12 }}
-      xmlns="http://www.w3.org/2000/svg"
-    >
-      <defs>
-        <pattern
-          id="hex"
-          x="0"
-          y="0"
-          width="56"
-          height="48"
-          patternUnits="userSpaceOnUse"
-        >
-          <polygon
-            points="14,2 42,2 56,24 42,46 14,46 0,24"
-            fill="none"
-            stroke={C.gold}
-            strokeWidth="0.6"
-          />
-        </pattern>
-      </defs>
-      <rect width="100%" height="100%" fill="url(#hex)" />
-    </svg>
-  );
-}
-
-// ── Form field component ───────────────────────────────────────────────────────
-function Field({
-  label,
-  type,
-  value,
-  onChange,
-  placeholder,
-  autoComplete,
-  disabled,
-}: {
-  label: string;
-  type: string;
-  value: string;
-  onChange: (v: string) => void;
-  placeholder?: string;
-  autoComplete?: string;
-  disabled?: boolean;
-}) {
-  const [focused, setFocused] = useState(false);
-
-  return (
-    <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-      <label
-        style={{
-          fontFamily: F.mono,
-          fontSize: "0.62rem",
-          letterSpacing: "0.12em",
-          textTransform: "uppercase",
-          color: focused ? C.gold : C.textMuted,
-          transition: "color 0.15s",
-        }}
-      >
-        {label}
-      </label>
-      <input
-        type={type}
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        placeholder={placeholder}
-        autoComplete={autoComplete}
-        disabled={disabled}
-        onFocus={() => setFocused(true)}
-        onBlur={() => setFocused(false)}
-        style={{
-          width: "100%",
-          padding: "12px 14px",
-          background: focused ? C.elevated : C.surface,
-          border: `1px solid ${focused ? C.gold : C.border}`,
-          color: C.text,
-          fontFamily: F.ui,
-          fontSize: "0.9rem",
-          outline: "none",
-          transition: "background 0.15s, border-color 0.15s",
-          borderRadius: 0,
-          opacity: disabled ? 0.5 : 1,
-          cursor: disabled ? "not-allowed" : "text",
-        }}
-      />
-    </div>
-  );
-}
-
-// ── Login form ─────────────────────────────────────────────────────────────────
 export default function Login() {
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [remember, setRemember] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -135,27 +22,28 @@ export default function Login() {
     e.preventDefault();
     setError("");
     setLoading(true);
-
     try {
       const res = await fetch("http://localhost:3000/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),
       });
-
-      const data = await res.json();
-
-      if (!res.ok) {
-        setError(data?.message ?? "Login failed. Please check your credentials.");
+      let data: { access_token?: string; user?: { role?: string }; message?: string } = {};
+      try {
+        data = await res.json();
+      } catch {
+        setError("Réponse inattendue du serveur. Veuillez réessayer.");
         return;
       }
-
-      localStorage.setItem("agora_token", data.access_token);
-      localStorage.setItem("agora_user", JSON.stringify(data.user));
-
+      if (!res.ok) {
+        setError(data?.message ?? "Identifiants incorrects. Veuillez vérifier vos informations.");
+        return;
+      }
+      localStorage.setItem("voti_token", data.access_token!);
+      localStorage.setItem("voti_user", JSON.stringify(data.user));
       navigate("/dashboard");
     } catch {
-      setError("Unable to reach the server. Please try again.");
+      setError("Impossible de joindre le serveur. Veuillez réessayer.");
     } finally {
       setLoading(false);
     }
@@ -166,159 +54,148 @@ export default function Login() {
       style={{
         minHeight: "100vh",
         display: "flex",
-        fontFamily: F.ui,
-        background: C.void,
+        fontFamily: "Manrope, sans-serif",
+        background: "#fcf9f4",
+        color: "#1c1c19",
       }}
     >
-      {/* ── Left panel ── */}
-      <div
+      {/* ── Left panel: dark navy branding ── */}
+      <section
         style={{
-          flex: "0 0 42%",
+          flex: "0 0 50%",
+          background: "#0A1628",
           position: "relative",
           overflow: "hidden",
           display: "flex",
-          flexDirection: "column",
-          justifyContent: "space-between",
-          padding: "3rem",
-          background: C.base,
-          borderRight: `1px solid ${C.border}`,
+          alignItems: "center",
+          justifyContent: "center",
+          padding: "5rem",
         }}
+        className="hidden lg:flex"
       >
-        {/* Hex pattern bg */}
-        <HexPattern />
-
-        {/* Radial glow */}
+        {/* Glow blobs */}
+        <div
+          style={{
+            position: "absolute",
+            top: "-10%",
+            right: "-10%",
+            width: "600px",
+            height: "600px",
+            background: "radial-gradient(circle, rgba(247,127,0,0.08) 0%, transparent 70%)",
+            borderRadius: "50%",
+            pointerEvents: "none",
+          }}
+        />
         <div
           style={{
             position: "absolute",
             bottom: "-20%",
-            left: "-20%",
-            width: "500px",
-            height: "500px",
+            left: "-10%",
+            width: "800px",
+            height: "800px",
+            background: "radial-gradient(circle, rgba(0,110,46,0.07) 0%, transparent 70%)",
             borderRadius: "50%",
-            background: "radial-gradient(circle, rgba(200,168,75,0.08) 0%, transparent 70%)",
             pointerEvents: "none",
           }}
         />
 
-        {/* Logo */}
-        <Link
-          to="/"
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: "10px",
-            textDecoration: "none",
-            position: "relative",
-            zIndex: 1,
-          }}
-        >
+        <div style={{ position: "relative", zIndex: 1, maxWidth: "480px" }}>
+          {/* Badge */}
           <div
             style={{
-              width: "36px",
-              height: "36px",
-              background: C.gold,
-              clipPath: "polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)",
-              display: "flex",
+              display: "inline-flex",
               alignItems: "center",
-              justifyContent: "center",
-              fontFamily: F.display,
-              fontWeight: 700,
-              fontSize: "15px",
-              color: C.void,
-              flexShrink: 0,
+              gap: "8px",
+              padding: "8px 16px",
+              borderRadius: "9999px",
+              background: "rgba(255,255,255,0.05)",
+              border: "1px solid rgba(255,255,255,0.1)",
+              marginBottom: "2rem",
             }}
           >
-            A
+            <span
+              style={{
+                width: "8px",
+                height: "8px",
+                borderRadius: "50%",
+                background: "#80fc98",
+                display: "inline-block",
+              }}
+            />
+            <span
+              style={{
+                color: "rgba(255,255,255,0.7)",
+                fontSize: "0.65rem",
+                fontWeight: 700,
+                letterSpacing: "0.2em",
+                textTransform: "uppercase",
+                fontFamily: "Manrope, sans-serif",
+              }}
+            >
+              Institution Digitalisée
+            </span>
           </div>
-          <span
-            style={{
-              fontFamily: F.display,
-              fontSize: "1.4rem",
-              fontWeight: 600,
-              letterSpacing: "0.12em",
-              color: C.text,
-            }}
-          >
-            AGO<span style={{ color: C.gold }}>RA</span>
-          </span>
-        </Link>
 
-        {/* Center content */}
-        <div style={{ position: "relative", zIndex: 1 }}>
-          <div
-            style={{
-              fontFamily: F.mono,
-              fontSize: "0.58rem",
-              letterSpacing: "0.2em",
-              textTransform: "uppercase",
-              color: C.gold,
-              marginBottom: "1.5rem",
-            }}
-          >
-            Command Center
-          </div>
+          {/* Headline */}
           <h1
             style={{
-              fontFamily: F.display,
-              fontSize: "clamp(2rem, 3.5vw, 3rem)",
-              fontWeight: 300,
-              fontStyle: "italic",
-              lineHeight: 1.15,
-              color: C.text,
-              margin: "0 0 2rem",
+              fontFamily: "Plus Jakarta Sans, sans-serif",
+              fontSize: "clamp(2.5rem, 4vw, 3.75rem)",
+              fontWeight: 800,
+              color: "#ffffff",
+              lineHeight: 1.1,
+              letterSpacing: "-0.02em",
+              margin: "0 0 1.5rem",
             }}
           >
-            The ballot is
-            <br />
-            stronger than
-            <br />
-            <strong style={{ fontStyle: "normal", fontWeight: 700, color: C.gold }}>
-              the bullet.
-            </strong>
+            L'excellence électorale{" "}
+            <span style={{ color: "#f77f00" }}>à votre portée.</span>
           </h1>
+
           <p
             style={{
-              fontFamily: F.mono,
-              fontSize: "0.65rem",
-              color: C.textMuted,
-              letterSpacing: "0.06em",
-              margin: 0,
+              color: "#94a3b8",
+              fontSize: "1.1rem",
+              lineHeight: 1.7,
+              maxWidth: "400px",
+              margin: "0 0 3rem",
             }}
           >
-            — Abraham Lincoln
+            Accédez à votre espace sécurisé pour participer au futur de la nation ivoirienne.
+            Transparence, intégrité et innovation.
           </p>
-        </div>
 
-        {/* Bottom info */}
-        <div style={{ position: "relative", zIndex: 1 }}>
+          {/* Stats strip */}
           <div
             style={{
-              display: "flex",
+              display: "grid",
+              gridTemplateColumns: "repeat(3, 1fr)",
               gap: "1px",
-              background: C.border,
-              border: `1px solid ${C.border}`,
+              background: "rgba(255,255,255,0.06)",
+              border: "1px solid rgba(255,255,255,0.06)",
+              borderRadius: "16px",
+              overflow: "hidden",
             }}
           >
             {[
-              { val: "3", label: "Active Elections" },
+              { val: "8.2M", label: "Électeurs inscrits" },
               { val: "22", label: "Districts" },
-              { val: "847", label: "Municipalities" },
+              { val: "847", label: "Communes" },
             ].map((s) => (
               <div
                 key={s.label}
                 style={{
-                  flex: 1,
-                  background: C.surface,
-                  padding: "0.875rem 1rem",
+                  background: "rgba(255,255,255,0.03)",
+                  padding: "1.25rem 1rem",
+                  textAlign: "center",
                 }}
               >
                 <div
                   style={{
-                    fontFamily: F.mono,
-                    fontSize: "1.1rem",
-                    fontWeight: 500,
-                    color: C.text,
+                    fontFamily: "Plus Jakarta Sans, sans-serif",
+                    fontSize: "1.5rem",
+                    fontWeight: 800,
+                    color: "#ffffff",
                     letterSpacing: "-0.02em",
                   }}
                 >
@@ -326,11 +203,12 @@ export default function Login() {
                 </div>
                 <div
                   style={{
-                    fontFamily: F.mono,
-                    fontSize: "0.58rem",
-                    color: C.textMuted,
-                    letterSpacing: "0.06em",
-                    marginTop: "2px",
+                    fontSize: "0.65rem",
+                    color: "#64748b",
+                    marginTop: "4px",
+                    fontWeight: 600,
+                    letterSpacing: "0.05em",
+                    textTransform: "uppercase",
                   }}
                 >
                   {s.label}
@@ -339,229 +217,319 @@ export default function Login() {
             ))}
           </div>
         </div>
-      </div>
+      </section>
 
-      {/* ── Right panel ── */}
-      <div
+      {/* ── Right panel: login form ── */}
+      <section
         style={{
           flex: 1,
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          padding: "3rem 2rem",
-          background: C.void,
-          position: "relative",
+          padding: "2rem",
+          background: "#fcf9f4",
         }}
       >
-        {/* Subtle top glow */}
-        <div
-          style={{
-            position: "absolute",
-            top: 0,
-            left: "50%",
-            transform: "translateX(-50%)",
-            width: "400px",
-            height: "300px",
-            background: "radial-gradient(ellipse at top, rgba(200,168,75,0.06) 0%, transparent 70%)",
-            pointerEvents: "none",
-          }}
-        />
+        <div style={{ width: "100%", maxWidth: "440px" }}>
+          {/* Mobile logo */}
+          <div style={{ marginBottom: "2.5rem" }} className="lg:hidden">
+            <Link to="/" style={{ textDecoration: "none" }}>
+              <span
+                style={{
+                  fontFamily: "Plus Jakarta Sans, sans-serif",
+                  fontSize: "1.5rem",
+                  fontWeight: 800,
+                  color: "#1c1c19",
+                  letterSpacing: "-0.02em",
+                }}
+              >
+                VOTI CI
+              </span>
+            </Link>
+          </div>
 
-        <div style={{ width: "100%", maxWidth: "420px", position: "relative" }}>
-          {/* Top accent line */}
-          <div
-            style={{
-              height: "2px",
-              background: `linear-gradient(to right, transparent, ${C.gold}, transparent)`,
-              marginBottom: "2.5rem",
-            }}
-          />
-
-          {/* Header */}
           <div style={{ marginBottom: "2.5rem" }}>
             <h2
               style={{
-                fontFamily: F.display,
+                fontFamily: "Plus Jakarta Sans, sans-serif",
                 fontSize: "2rem",
-                fontWeight: 500,
-                color: C.text,
+                fontWeight: 800,
+                color: "#1c1c19",
                 margin: "0 0 0.5rem",
-                letterSpacing: "-0.01em",
+                letterSpacing: "-0.02em",
               }}
             >
-              Welcome back
+              Bonjour à nouveau
             </h2>
-            <p
-              style={{
-                fontSize: "0.82rem",
-                color: C.textDim,
-                margin: 0,
-                lineHeight: 1.6,
-              }}
-            >
-              Sign in to access the election management command center.
+            <p style={{ color: "#535f74", fontWeight: 500, margin: 0 }}>
+              Veuillez entrer vos identifiants pour continuer.
             </p>
           </div>
 
-          {/* Error alert */}
+          {/* Error */}
           {error && (
             <div
               style={{
                 padding: "12px 16px",
-                background: C.redDim,
-                border: `1px solid rgba(255,61,92,0.3)`,
+                background: "#ffdad6",
+                border: "1px solid rgba(186,26,26,0.2)",
+                borderRadius: "12px",
                 marginBottom: "1.5rem",
                 display: "flex",
                 alignItems: "flex-start",
                 gap: "10px",
               }}
             >
-              <svg
-                width="16"
-                height="16"
-                viewBox="0 0 16 16"
-                fill="none"
-                style={{ flexShrink: 0, marginTop: "1px" }}
-              >
-                <circle cx="8" cy="8" r="7" stroke={C.red} strokeWidth="1.5" />
-                <path d="M8 5v3.5M8 11v.5" stroke={C.red} strokeWidth="1.5" strokeLinecap="round" />
-              </svg>
-              <span style={{ fontSize: "0.78rem", color: C.red, lineHeight: 1.5 }}>
-                {error}
+              <span className="material-symbols-outlined" style={{ color: "#ba1a1a", fontSize: "18px", flexShrink: 0, marginTop: "1px" }}>
+                error
               </span>
+              <span style={{ fontSize: "0.82rem", color: "#ba1a1a", lineHeight: 1.5 }}>{error}</span>
             </div>
           )}
 
-          {/* Form */}
           <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "1.25rem" }}>
-            <Field
-              label="Email address"
-              type="email"
-              value={email}
-              onChange={setEmail}
-              placeholder="admin@agora.gov"
-              autoComplete="email"
-              disabled={loading}
-            />
+            {/* Email */}
+            <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+              <label
+                htmlFor="email"
+                style={{
+                  fontSize: "0.7rem",
+                  fontWeight: 700,
+                  color: "#574335",
+                  letterSpacing: "0.1em",
+                  textTransform: "uppercase",
+                }}
+              >
+                Adresse Email
+              </label>
+              <div style={{ position: "relative" }}>
+                <span
+                  className="material-symbols-outlined"
+                  style={{
+                    position: "absolute",
+                    left: "16px",
+                    top: "50%",
+                    transform: "translateY(-50%)",
+                    color: "#95a0b8",
+                    fontSize: "20px",
+                    pointerEvents: "none",
+                  }}
+                >
+                  mail
+                </span>
+                <input
+                  id="email"
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="nom@exemple.ci"
+                  autoComplete="email"
+                  disabled={loading}
+                  required
+                  style={{
+                    width: "100%",
+                    padding: "16px 16px 16px 48px",
+                    background: "#ebe8e3",
+                    border: "none",
+                    borderRadius: "12px",
+                    color: "#1c1c19",
+                    fontFamily: "Manrope, sans-serif",
+                    fontSize: "0.9rem",
+                    outline: "none",
+                    boxSizing: "border-box",
+                    transition: "background 0.2s",
+                  }}
+                  onFocus={(e) => (e.currentTarget.style.background = "#e5e2dd")}
+                  onBlur={(e) => (e.currentTarget.style.background = "#ebe8e3")}
+                />
+              </div>
+            </div>
 
-            <Field
-              label="Password"
-              type="password"
-              value={password}
-              onChange={setPassword}
-              placeholder="••••••••••••"
-              autoComplete="current-password"
-              disabled={loading}
-            />
+            {/* Password */}
+            <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                <label
+                  htmlFor="password"
+                  style={{
+                    fontSize: "0.7rem",
+                    fontWeight: 700,
+                    color: "#574335",
+                    letterSpacing: "0.1em",
+                    textTransform: "uppercase",
+                  }}
+                >
+                  Mot de passe
+                </label>
+                <button
+                  type="button"
+                  style={{
+                    background: "none",
+                    border: "none",
+                    padding: 0,
+                    fontSize: "0.75rem",
+                    fontWeight: 700,
+                    color: "#954a00",
+                    cursor: "pointer",
+                    fontFamily: "Manrope, sans-serif",
+                  }}
+                >
+                  Mot de passe oublié ?
+                </button>
+              </div>
+              <div style={{ position: "relative" }}>
+                <span
+                  className="material-symbols-outlined"
+                  style={{
+                    position: "absolute",
+                    left: "16px",
+                    top: "50%",
+                    transform: "translateY(-50%)",
+                    color: "#95a0b8",
+                    fontSize: "20px",
+                    pointerEvents: "none",
+                  }}
+                >
+                  lock
+                </span>
+                <input
+                  id="password"
+                  type={showPassword ? "text" : "password"}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="••••••••"
+                  autoComplete="current-password"
+                  disabled={loading}
+                  required
+                  style={{
+                    width: "100%",
+                    padding: "16px 48px 16px 48px",
+                    background: "#ebe8e3",
+                    border: "none",
+                    borderRadius: "12px",
+                    color: "#1c1c19",
+                    fontFamily: "Manrope, sans-serif",
+                    fontSize: "0.9rem",
+                    outline: "none",
+                    boxSizing: "border-box",
+                    transition: "background 0.2s",
+                  }}
+                  onFocus={(e) => (e.currentTarget.style.background = "#e5e2dd")}
+                  onBlur={(e) => (e.currentTarget.style.background = "#ebe8e3")}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  style={{
+                    position: "absolute",
+                    right: "16px",
+                    top: "50%",
+                    transform: "translateY(-50%)",
+                    background: "none",
+                    border: "none",
+                    padding: 0,
+                    cursor: "pointer",
+                    color: "#95a0b8",
+                    display: "flex",
+                    alignItems: "center",
+                  }}
+                >
+                  <span className="material-symbols-outlined" style={{ fontSize: "20px" }}>
+                    {showPassword ? "visibility_off" : "visibility"}
+                  </span>
+                </button>
+              </div>
+            </div>
 
-            {/* Options row */}
-            <div
+            {/* Remember me */}
+            <label
               style={{
                 display: "flex",
                 alignItems: "center",
-                justifyContent: "space-between",
+                gap: "10px",
+                cursor: "pointer",
+                fontSize: "0.875rem",
+                fontWeight: 500,
+                color: "#574335",
               }}
             >
-              <label
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "8px",
-                  cursor: "pointer",
-                  fontSize: "0.75rem",
-                  color: C.textDim,
-                }}
-              >
-                <input
-                  type="checkbox"
-                  style={{
-                    width: "14px",
-                    height: "14px",
-                    accentColor: C.gold,
-                    cursor: "pointer",
-                  }}
-                />
-                Keep me signed in
-              </label>
-              <button
-                type="button"
-                style={{
-                  background: "none",
-                  border: "none",
-                  padding: 0,
-                  fontFamily: F.ui,
-                  fontSize: "0.75rem",
-                  color: C.textMuted,
-                  cursor: "pointer",
-                  transition: "color 0.15s",
-                }}
-                onMouseEnter={(e) => ((e.target as HTMLElement).style.color = C.gold)}
-                onMouseLeave={(e) => ((e.target as HTMLElement).style.color = C.textMuted)}
-              >
-                Forgot password?
-              </button>
-            </div>
+              <input
+                type="checkbox"
+                checked={remember}
+                onChange={(e) => setRemember(e.target.checked)}
+                style={{ width: "18px", height: "18px", accentColor: "#954a00", cursor: "pointer" }}
+              />
+              Rester connecté
+            </label>
 
             {/* Submit */}
             <button
               type="submit"
               disabled={loading || !email || !password}
               style={{
-                padding: "14px 24px",
+                width: "100%",
+                padding: "16px",
                 background:
-                  loading || !email || !password ? C.goldDim : C.gold,
-                border: `1px solid ${loading || !email || !password ? C.border : C.gold}`,
-                color: loading || !email || !password ? C.textMuted : C.void,
-                fontFamily: F.ui,
-                fontSize: "0.85rem",
+                  loading || !email || !password
+                    ? "#ebe8e3"
+                    : "linear-gradient(to right, #954a00, #f77f00)",
+                border: "none",
+                borderRadius: "9999px",
+                color: loading || !email || !password ? "#95a0b8" : "#ffffff",
+                fontFamily: "Manrope, sans-serif",
+                fontSize: "1rem",
                 fontWeight: 700,
-                letterSpacing: "0.06em",
                 cursor: loading || !email || !password ? "not-allowed" : "pointer",
-                transition: "background 0.2s, color 0.2s, border-color 0.2s, transform 0.15s",
+                transition: "transform 0.2s, box-shadow 0.2s",
+                boxShadow:
+                  loading || !email || !password
+                    ? "none"
+                    : "0 8px 24px rgba(149,74,0,0.25)",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
                 gap: "8px",
               }}
               onMouseEnter={(e) => {
-                const btn = e.currentTarget as HTMLButtonElement;
-                if (!btn.disabled) {
-                  btn.style.background = C.goldBright;
-                  btn.style.transform = "translateY(-1px)";
-                }
+                const btn = e.currentTarget;
+                if (!btn.disabled) btn.style.transform = "translateY(-2px)";
               }}
               onMouseLeave={(e) => {
-                const btn = e.currentTarget as HTMLButtonElement;
-                if (!btn.disabled) {
-                  btn.style.background = C.gold;
-                  btn.style.transform = "translateY(0)";
-                }
+                const btn = e.currentTarget;
+                if (!btn.disabled) btn.style.transform = "translateY(0)";
               }}
             >
               {loading ? (
                 <>
                   <svg
-                    width="16"
-                    height="16"
-                    viewBox="0 0 16 16"
+                    width="18"
+                    height="18"
+                    viewBox="0 0 18 18"
                     fill="none"
                     style={{ animation: "spin-slow 1s linear infinite" }}
                   >
-                    <circle cx="8" cy="8" r="6" stroke="currentColor" strokeWidth="1.5" strokeOpacity="0.3"/>
-                    <path d="M14 8a6 6 0 0 0-6-6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+                    <circle cx="9" cy="9" r="7" stroke="currentColor" strokeWidth="2" strokeOpacity="0.3" />
+                    <path d="M16 9a7 7 0 0 0-7-7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
                   </svg>
-                  Authenticating…
+                  Connexion en cours…
                 </>
               ) : (
-                <>
-                  Enter Platform
-                  <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-                    <path d="M3 7h8M8 4l3 3-3 3" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
-                  </svg>
-                </>
+                "Se connecter"
               )}
             </button>
           </form>
+
+          {/* Sign up link */}
+          <p style={{ textAlign: "center", marginTop: "1.5rem", color: "#535f74", fontWeight: 500 }}>
+            Vous n'avez pas de compte ?{" "}
+            <Link
+              to="/"
+              style={{ color: "#954a00", fontWeight: 700, textDecoration: "none" }}
+              onMouseEnter={(e) => ((e.currentTarget as HTMLElement).style.textDecoration = "underline")}
+              onMouseLeave={(e) => ((e.currentTarget as HTMLElement).style.textDecoration = "none")}
+            >
+              Créer un profil
+            </Link>
+          </p>
 
           {/* Divider */}
           <div
@@ -569,56 +537,61 @@ export default function Login() {
               display: "flex",
               alignItems: "center",
               gap: "1rem",
-              margin: "2rem 0",
+              margin: "1.5rem 0",
             }}
           >
-            <div style={{ flex: 1, height: "1px", background: C.border }} />
-            <span style={{ fontFamily: F.mono, fontSize: "0.58rem", color: C.textMuted, letterSpacing: "0.1em" }}>
-              SECURE ACCESS
+            <div style={{ flex: 1, height: "1px", background: "#e5e2dd" }} />
+            <span
+              style={{
+                fontSize: "0.65rem",
+                fontWeight: 700,
+                color: "#95a0b8",
+                letterSpacing: "0.15em",
+                textTransform: "uppercase",
+              }}
+            >
+              Ou continuer avec
             </span>
-            <div style={{ flex: 1, height: "1px", background: C.border }} />
+            <div style={{ flex: 1, height: "1px", background: "#e5e2dd" }} />
           </div>
 
-          {/* Security badges */}
-          <div style={{ display: "flex", gap: "8px", justifyContent: "center", flexWrap: "wrap" }}>
-            {["JWT Protected", "bcrypt Hashed", "Role-Based"].map((badge) => (
-              <span
-                key={badge}
+          {/* Alternative login */}
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
+            {[
+              { icon: "fingerprint", label: "Biométrie" },
+              { icon: "badge", label: "ID National" },
+            ].map((item) => (
+              <button
+                key={item.label}
+                type="button"
                 style={{
-                  padding: "4px 10px",
-                  border: `1px solid ${C.border}`,
-                  background: C.surface,
-                  fontFamily: F.mono,
-                  fontSize: "0.58rem",
-                  letterSpacing: "0.08em",
-                  color: C.textMuted,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  gap: "10px",
+                  padding: "12px",
+                  background: "transparent",
+                  border: "1px solid #dec1af",
+                  borderRadius: "12px",
+                  color: "#1c1c19",
+                  fontFamily: "Manrope, sans-serif",
+                  fontSize: "0.875rem",
+                  fontWeight: 700,
+                  cursor: "pointer",
+                  transition: "background 0.15s",
                 }}
+                onMouseEnter={(e) => ((e.currentTarget as HTMLElement).style.background = "#f6f3ee")}
+                onMouseLeave={(e) => ((e.currentTarget as HTMLElement).style.background = "transparent")}
               >
-                {badge}
-              </span>
+                <span className="material-symbols-outlined" style={{ fontSize: "20px" }}>
+                  {item.icon}
+                </span>
+                {item.label}
+              </button>
             ))}
           </div>
-
-          {/* Back link */}
-          <div style={{ textAlign: "center", marginTop: "2.5rem" }}>
-            <Link
-              to="/"
-              style={{
-                fontFamily: F.mono,
-                fontSize: "0.65rem",
-                color: C.textMuted,
-                textDecoration: "none",
-                letterSpacing: "0.06em",
-                transition: "color 0.15s",
-              }}
-              onMouseEnter={(e) => ((e.target as HTMLElement).style.color = C.textDim)}
-              onMouseLeave={(e) => ((e.target as HTMLElement).style.color = C.textMuted)}
-            >
-              ← Back to landing page
-            </Link>
-          </div>
         </div>
-      </div>
+      </section>
     </div>
   );
 }

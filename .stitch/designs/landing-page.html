@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+
+<html class="light" lang="fr"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>VOTI CI - Excellence Électorale en Côte d'Ivoire</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;family=Manrope:wght@400;500;600;700&amp;family=Outfit:wght@800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "on-primary-container": "#592a00",
+                    "surface-dim": "#dcdad5",
+                    "primary": "#954a00",
+                    "tertiary-container": "#95a0b8",
+                    "on-primary": "#ffffff",
+                    "on-secondary-fixed": "#002109",
+                    "secondary": "#006e2e",
+                    "surface-container-low": "#f6f3ee",
+                    "on-tertiary": "#ffffff",
+                    "inverse-surface": "#31302d",
+                    "primary-fixed": "#ffdcc6",
+                    "on-tertiary-container": "#2c374b",
+                    "on-surface-variant": "#574335",
+                    "surface-container-lowest": "#ffffff",
+                    "on-error-container": "#93000a",
+                    "outline-variant": "#dec1af",
+                    "surface-tint": "#954a00",
+                    "on-secondary": "#ffffff",
+                    "surface-variant": "#e5e2dd",
+                    "secondary-fixed": "#80fc98",
+                    "on-error": "#ffffff",
+                    "tertiary": "#535f74",
+                    "on-secondary-container": "#007432",
+                    "error-container": "#ffdad6",
+                    "inverse-primary": "#ffb784",
+                    "secondary-container": "#80fc98",
+                    "surface-container-high": "#ebe8e3",
+                    "background": "#fcf9f4",
+                    "on-surface": "#1c1c19",
+                    "on-secondary-fixed-variant": "#005321",
+                    "secondary-fixed-dim": "#63df7f",
+                    "surface-bright": "#fcf9f4",
+                    "surface": "#fcf9f4",
+                    "error": "#ba1a1a",
+                    "on-primary-fixed": "#301400",
+                    "on-primary-fixed-variant": "#713700",
+                    "tertiary-fixed": "#d7e3fc",
+                    "inverse-on-surface": "#f3f0eb",
+                    "on-tertiary-fixed-variant": "#3c475b",
+                    "surface-container-highest": "#e5e2dd",
+                    "primary-container": "#f77f00",
+                    "surface-container": "#f0ede9",
+                    "on-background": "#1c1c19",
+                    "outline": "#8a7263",
+                    "primary-fixed-dim": "#ffb784",
+                    "on-tertiary-fixed": "#101c2e",
+                    "tertiary-fixed-dim": "#bbc7df"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "fontFamily": {
+                    "headline": ["Plus Jakarta Sans"],
+                    "body": ["Manrope"],
+                    "label": ["Manrope"],
+                    "display": ["Outfit"]
+            }
+          }
+        }
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .organic-blob {
+            mask-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath fill='%23FF0066' d='M44.7,-76.4C58.8,-69.2,71.8,-59.1,79.6,-46.5C87.4,-33.8,90.1,-18.5,89.9,-3.3C89.6,12,86.5,27.1,79.5,41.2C72.5,55.3,61.6,68.4,48.1,76.5C34.6,84.6,18.5,87.7,2.5,83.4C-13.4,79.1,-29.3,67.4,-44.1,57.7C-58.8,48,-72.4,40.3,-80.1,28.8C-87.7,17.3,-89.4,2.1,-87.3,-12.4C-85.1,-26.8,-79.1,-40.5,-69.5,-52.1C-59.8,-63.7,-46.4,-73.2,-33,-80.7C-19.6,-88.2,-6.4,-93.7,7.1,-105.9C20.6,-118.1,30.5,-83.5,44.7,-76.4Z' transform='translate(100 100)' /%3E%3C/svg%3E");
+            -webkit-mask-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath fill='%23FF0066' d='M44.7,-76.4C58.8,-69.2,71.8,-59.1,79.6,-46.5C87.4,-33.8,90.1,-18.5,89.9,-3.3C89.6,12,86.5,27.1,79.5,41.2C72.5,55.3,61.6,68.4,48.1,76.5C34.6,84.6,18.5,87.7,2.5,83.4C-13.4,79.1,-29.3,67.4,-44.1,57.7C-58.8,48,-72.4,40.3,-80.1,28.8C-87.7,17.3,-89.4,2.1,-87.3,-12.4C-85.1,-26.8,-79.1,-40.5,-69.5,-52.1C-59.8,-63.7,-46.4,-73.2,-33,-80.7C-19.6,-88.2,-6.4,-93.7,7.1,-105.9C20.6,-118.1,30.5,-83.5,44.7,-76.4Z' transform='translate(100 100)' /%3E%3C/svg%3E");
+        }
+    </style>
+</head>
+<body class="bg-background font-body text-on-surface">
+<!-- TopNavBar -->
+<nav class="fixed top-0 w-full z-50 bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl shadow-sm dark:shadow-none border-b border-slate-200 dark:border-slate-800">
+<div class="flex justify-between items-center max-w-7xl mx-auto px-6 h-20">
+<div class="text-2xl font-black tracking-tighter text-slate-900 dark:text-white">VOTI CI</div>
+<div class="hidden md:flex items-center gap-8">
+<a class="text-orange-600 dark:text-orange-400 font-bold border-b-2 border-orange-500 pb-1 font-['Plus_Jakarta_Sans'] font-medium text-sm tracking-tight transition-all duration-300 hover:opacity-80" href="#">Accueil</a>
+<a class="text-slate-600 dark:text-slate-400 hover:text-orange-500 font-['Plus_Jakarta_Sans'] font-medium text-sm tracking-tight transition-all duration-300 hover:opacity-80" href="#">À Propos</a>
+<a class="text-slate-600 dark:text-slate-400 hover:text-orange-500 font-['Plus_Jakarta_Sans'] font-medium text-sm tracking-tight transition-all duration-300 hover:opacity-80" href="#">Élections</a>
+<a class="text-slate-600 dark:text-slate-400 hover:text-orange-500 font-['Plus_Jakarta_Sans'] font-medium text-sm tracking-tight transition-all duration-300 hover:opacity-80" href="#">FAQs</a>
+<a class="text-slate-600 dark:text-slate-400 hover:text-orange-500 font-['Plus_Jakarta_Sans'] font-medium text-sm tracking-tight transition-all duration-300 hover:opacity-80" href="#">Contact</a>
+</div>
+<div class="flex items-center gap-4">
+<button class="px-5 py-2 text-slate-600 dark:text-slate-300 font-semibold transition-all duration-300 hover:opacity-80 scale-95 active:scale-90">Connexion</button>
+<button class="px-6 py-2.5 bg-primary-container text-white rounded-full font-bold shadow-lg shadow-primary-container/20 transition-all duration-300 hover:opacity-80 scale-95 active:scale-90">S'inscrire</button>
+</div>
+</div>
+<div class="absolute bottom-0 w-full bg-gradient-to-r from-transparent via-slate-200 to-transparent h-[1px]"></div>
+</nav>
+<!-- Hero Section -->
+<section class="pt-32 pb-20 px-6 relative overflow-hidden">
+<!-- Decorative SVG Blobs -->
+<div class="absolute top-0 right-0 w-[500px] h-[500px] bg-primary/5 organic-blob -z-10 translate-x-1/4 -translate-y-1/4"></div>
+<div class="absolute bottom-0 left-0 w-[400px] h-[400px] bg-secondary/5 organic-blob -z-10 -translate-x-1/4 translate-y-1/4"></div>
+<div class="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+<div class="space-y-8">
+<h1 class="text-5xl lg:text-7xl font-display text-on-surface leading-[1.1] tracking-tight">
+                    Votez en toute <span class="text-primary-container">confiance</span>, <span class="text-secondary">partout</span>.
+                </h1>
+<p class="text-xl text-tertiary max-w-xl leading-relaxed">
+                    La plateforme électorale numérique sécurisée qui garantit la transparence et l'intégrité de chaque voix en Côte d'Ivoire. Simple, rapide et inaltérable.
+                </p>
+<div class="flex flex-wrap gap-4 pt-4">
+<button class="px-8 py-4 bg-primary-container text-on-primary rounded-full font-bold text-lg shadow-xl shadow-primary-container/30 transition-transform hover:-translate-y-1">
+                        Commencer maintenant
+                    </button>
+<button class="px-8 py-4 bg-transparent border-2 border-outline-variant text-primary rounded-full font-bold text-lg transition-transform hover:-translate-y-1">
+                        Voir la démo
+                    </button>
+</div>
+</div>
+<div class="relative">
+<!-- Election Preview Card -->
+<div class="bg-surface-container-lowest p-8 rounded-[24px] shadow-[0px_12px_32px_rgba(10,22,40,0.06)] relative overflow-hidden">
+<div class="absolute top-0 right-0 w-32 h-32 bg-primary/5 organic-blob opacity-50"></div>
+<div class="flex justify-between items-center mb-8">
+<div>
+<h3 class="font-headline font-extrabold text-xl">Législatives 2024</h3>
+<span class="text-xs font-label uppercase tracking-widest text-secondary font-bold">En direct • Résultats partiels</span>
+</div>
+<div class="bg-secondary/10 text-secondary px-3 py-1 rounded-full text-sm font-bold">
+                            Live
+                        </div>
+</div>
+<div class="space-y-6">
+<!-- Candidate 1 -->
+<div class="space-y-2">
+<div class="flex justify-between text-sm font-bold">
+<span>Candidat A</span>
+<span>42%</span>
+</div>
+<div class="h-3 w-full bg-surface-container-high rounded-full overflow-hidden">
+<div class="h-full bg-primary-container w-[42%] rounded-full"></div>
+</div>
+</div>
+<!-- Candidate 2 -->
+<div class="space-y-2">
+<div class="flex justify-between text-sm font-bold">
+<span>Candidat B</span>
+<span>38%</span>
+</div>
+<div class="h-3 w-full bg-surface-container-high rounded-full overflow-hidden">
+<div class="h-full bg-secondary w-[38%] rounded-full"></div>
+</div>
+</div>
+<!-- Candidate 3 -->
+<div class="space-y-2">
+<div class="flex justify-between text-sm font-bold">
+<span>Candidat C</span>
+<span>20%</span>
+</div>
+<div class="h-3 w-full bg-surface-container-high rounded-full overflow-hidden">
+<div class="h-full bg-tertiary-container w-[20%] rounded-full"></div>
+</div>
+</div>
+</div>
+<div class="mt-8 pt-6 border-t border-surface-container-high flex items-center justify-between text-tertiary">
+<div class="flex -space-x-2">
+<img class="w-8 h-8 rounded-full border-2 border-white" data-alt="portrait of a young ivorian man smiling professional soft lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuALlATiiKCHYQCLAiDa2hYmYdZsxtgOY3fPIioalMIQlqOk1iesAdKcba7Ub1TYycaxL8ukhZ-1wFID_Yv7S9rZ9EokOYiSXICVMpqYQPkn_nOua898fNTNJv-7wnWG7_hIqEQAnR9QcO9tcvvvjE7wD_BRff7z5ycrIKPZAXMLUOPpH0GuiIGJG177wjyb-XEU_sMBwNfLJCOi8jWm_2386sQjeie-gIkl74UlFJbmE-8NaDpwxbkPZojMrWk3yacX22PaGkOh3Uw"/>
+<img class="w-8 h-8 rounded-full border-2 border-white" data-alt="portrait of a professional ivorian woman smiling soft studio lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAkAhqXSO-aS33VBGIqC4MHVd7o9nqIRC4iULzosWNJkg0dDJmcjKLu-CQwuh_8PgN8t9Vdc7To_sk03nho7mMHx-cHIIZcQR033NMHOIeXCQPgoFvwTi9ver9NcOH5jY-Vb2u7RlrVHz-zo3Dk9LlMqH_pVtxQyyFc2pn2_LSx0shmyJXpOuVv3pEmzqESCaMysHL18AazpYGbYkjyYikIOY8ySEpxnIjy14tpI-24S1WSbnTFcYJXXmnP-lmgX0YDTCL58JW5k0M"/>
+<div class="w-8 h-8 rounded-full bg-slate-200 flex items-center justify-center text-[10px] font-bold border-2 border-white">+12k</div>
+</div>
+<span class="text-sm font-medium">1.2M votes enregistrés</span>
+</div>
+</div>
+<!-- Floating Detail Card -->
+<div class="absolute -bottom-6 -left-6 bg-secondary-container p-4 rounded-xl shadow-xl flex items-center gap-3">
+<div class="w-10 h-10 bg-white rounded-full flex items-center justify-center">
+<span class="material-symbols-outlined text-secondary" style="font-variation-settings: 'FILL' 1;">verified</span>
+</div>
+<div>
+<p class="text-xs font-bold text-on-secondary-container">Identité Vérifiée</p>
+<p class="text-[10px] text-on-secondary-container/80">Blockchain Sécurisée</p>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Stats Band -->
+<div class="bg-slate-950 py-16">
+<div class="max-w-7xl mx-auto px-6 grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
+<div>
+<p class="text-primary-container text-4xl font-display mb-1">99.9%</p>
+<p class="text-slate-400 font-label text-xs uppercase tracking-widest">Disponibilité</p>
+</div>
+<div>
+<p class="text-white text-4xl font-display mb-1">2M+</p>
+<p class="text-slate-400 font-label text-xs uppercase tracking-widest">Électeurs Inscrits</p>
+</div>
+<div>
+<p class="text-secondary-fixed text-4xl font-display mb-1">0</p>
+<p class="text-slate-400 font-label text-xs uppercase tracking-widest">Failles de sécurité</p>
+</div>
+<div>
+<p class="text-white text-4xl font-display mb-1">100%</p>
+<p class="text-slate-400 font-label text-xs uppercase tracking-widest">Anonymat Garanti</p>
+</div>
+</div>
+</div>
+<!-- Features Section -->
+<section class="py-24 px-6 bg-surface-container-low">
+<div class="max-w-7xl mx-auto">
+<div class="text-center mb-16 space-y-4">
+<span class="text-primary font-bold text-sm tracking-[0.2em] uppercase">Nos Atouts</span>
+<h2 class="text-4xl font-display text-on-surface">Une technologie au service de la démocratie</h2>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+<!-- Feature 1 -->
+<div class="bg-white p-8 rounded-[24px] hover:shadow-xl transition-all duration-300 border-b-4 border-transparent hover:border-primary-container">
+<div class="w-14 h-14 bg-primary-fixed rounded-xl flex items-center justify-center mb-6">
+<span class="material-symbols-outlined text-primary text-3xl">security</span>
+</div>
+<h3 class="text-xl font-bold mb-3">Sécurité Blockchain</h3>
+<p class="text-tertiary leading-relaxed">Chaque vote est crypté et enregistré sur un registre inaltérable distribué sur plusieurs nœuds sécurisés.</p>
+</div>
+<!-- Feature 2 -->
+<div class="bg-white p-8 rounded-[24px] hover:shadow-xl transition-all duration-300 border-b-4 border-transparent hover:border-secondary">
+<div class="w-14 h-14 bg-secondary-container rounded-xl flex items-center justify-center mb-6">
+<span class="material-symbols-outlined text-secondary text-3xl">fingerprint</span>
+</div>
+<h3 class="text-xl font-bold mb-3">Authentification Biométrique</h3>
+<p class="text-tertiary leading-relaxed">Validation multi-facteurs incluant la reconnaissance faciale pour éliminer toute tentative de fraude.</p>
+</div>
+<!-- Feature 3 -->
+<div class="bg-white p-8 rounded-[24px] hover:shadow-xl transition-all duration-300 border-b-4 border-transparent hover:border-tertiary">
+<div class="w-14 h-14 bg-tertiary-fixed rounded-xl flex items-center justify-center mb-6">
+<span class="material-symbols-outlined text-tertiary text-3xl">query_stats</span>
+</div>
+<h3 class="text-xl font-bold mb-3">Audit en Temps Réel</h3>
+<p class="text-tertiary leading-relaxed">Outils de monitoring pour les observateurs électoraux garantissant une transparence totale.</p>
+</div>
+<!-- Feature 4 -->
+<div class="bg-white p-8 rounded-[24px] hover:shadow-xl transition-all duration-300 border-b-4 border-transparent hover:border-primary-container">
+<div class="w-14 h-14 bg-primary-fixed rounded-xl flex items-center justify-center mb-6">
+<span class="material-symbols-outlined text-primary text-3xl">devices</span>
+</div>
+<h3 class="text-xl font-bold mb-3">Accessibilité Totale</h3>
+<p class="text-tertiary leading-relaxed">Compatible avec tous les smartphones et tablettes, même avec une connexion internet limitée.</p>
+</div>
+<!-- Feature 5 -->
+<div class="bg-white p-8 rounded-[24px] hover:shadow-xl transition-all duration-300 border-b-4 border-transparent hover:border-secondary">
+<div class="w-14 h-14 bg-secondary-container rounded-xl flex items-center justify-center mb-6">
+<span class="material-symbols-outlined text-secondary text-3xl">visibility_off</span>
+</div>
+<h3 class="text-xl font-bold mb-3">Anonymat Absolu</h3>
+<p class="text-tertiary leading-relaxed">Séparation cryptographique entre l'identité de l'électeur et son bulletin de vote numérique.</p>
+</div>
+<!-- Feature 6 -->
+<div class="bg-white p-8 rounded-[24px] hover:shadow-xl transition-all duration-300 border-b-4 border-transparent hover:border-tertiary">
+<div class="w-14 h-14 bg-tertiary-fixed rounded-xl flex items-center justify-center mb-6">
+<span class="material-symbols-outlined text-tertiary text-3xl">support_agent</span>
+</div>
+<h3 class="text-xl font-bold mb-3">Support 24/7</h3>
+<p class="text-tertiary leading-relaxed">Une assistance multilingue (Français et langues locales) pour guider chaque citoyen.</p>
+</div>
+</div>
+</div>
+</section>
+<!-- Comment ça marche -->
+<section class="py-24 px-6 overflow-hidden relative">
+<div class="max-w-7xl mx-auto">
+<div class="text-center mb-16 space-y-4">
+<span class="text-secondary font-bold text-sm tracking-[0.2em] uppercase">Processus</span>
+<h2 class="text-4xl font-display text-on-surface">Votre vote en 4 étapes simples</h2>
+</div>
+<div class="relative grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+<!-- Step 1 -->
+<div class="relative z-10 group">
+<div class="mb-8 relative">
+<div class="w-20 h-20 bg-primary-container text-white rounded-[24px] flex items-center justify-center text-3xl font-display shadow-lg group-hover:scale-110 transition-transform">1</div>
+<div class="hidden lg:block absolute top-10 left-20 w-full h-[2px] bg-gradient-to-r from-primary-container to-secondary -z-10"></div>
+</div>
+<h3 class="text-xl font-bold mb-3">Identification</h3>
+<p class="text-tertiary leading-relaxed">Connectez-vous via votre numéro de carte d'électeur et passez la validation faciale.</p>
+</div>
+<!-- Step 2 -->
+<div class="relative z-10 group">
+<div class="mb-8 relative">
+<div class="w-20 h-20 bg-[#C16D00] text-white rounded-[24px] flex items-center justify-center text-3xl font-display shadow-lg group-hover:scale-110 transition-transform">2</div>
+<div class="hidden lg:block absolute top-10 left-20 w-full h-[2px] bg-gradient-to-r from-[#C16D00] to-secondary -z-10"></div>
+</div>
+<h3 class="text-xl font-bold mb-3">Choix de l'Élection</h3>
+<p class="text-tertiary leading-relaxed">Sélectionnez le scrutin auquel vous souhaitez participer dans votre circonscription.</p>
+</div>
+<!-- Step 3 -->
+<div class="relative z-10 group">
+<div class="mb-8 relative">
+<div class="w-20 h-20 bg-[#606E17] text-white rounded-[24px] flex items-center justify-center text-3xl font-display shadow-lg group-hover:scale-110 transition-transform">3</div>
+<div class="hidden lg:block absolute top-10 left-20 w-full h-[2px] bg-gradient-to-r from-[#606E17] to-secondary -z-10"></div>
+</div>
+<h3 class="text-xl font-bold mb-3">Vote Secret</h3>
+<p class="text-tertiary leading-relaxed">Marquez votre bulletin numérique en toute confidentialité sur votre écran.</p>
+</div>
+<!-- Step 4 -->
+<div class="relative z-10 group">
+<div class="mb-8 relative">
+<div class="w-20 h-20 bg-secondary text-white rounded-[24px] flex items-center justify-center text-3xl font-display shadow-lg group-hover:scale-110 transition-transform">4</div>
+</div>
+<h3 class="text-xl font-bold mb-3">Validation Blockchain</h3>
+<p class="text-tertiary leading-relaxed">Recevez votre reçu cryptographique unique prouvant que votre vote a été compté.</p>
+</div>
+</div>
+</div>
+</section>
+<!-- CTA Section -->
+<section class="py-24 px-6">
+<div class="max-w-6xl mx-auto rounded-[40px] overflow-hidden relative bg-gradient-to-br from-primary-container to-primary p-12 lg:p-20 text-center">
+<div class="absolute inset-0 opacity-10">
+<div class="absolute top-0 right-0 w-96 h-96 bg-white organic-blob translate-x-1/3 -translate-y-1/3"></div>
+<div class="absolute bottom-0 left-0 w-96 h-96 bg-white organic-blob -translate-x-1/3 translate-y-1/3"></div>
+</div>
+<div class="relative z-10 space-y-8">
+<h2 class="text-4xl lg:text-5xl font-display text-white max-w-3xl mx-auto leading-tight">Prêt à faire entendre votre voix pour la nation ?</h2>
+<p class="text-white/80 text-xl max-w-2xl mx-auto">Rejoignez des millions d'ivoiriens qui font confiance à la technologie pour bâtir un avenir plus transparent.</p>
+<div class="flex flex-wrap justify-center gap-6 pt-4">
+<button class="px-10 py-5 bg-white text-primary rounded-full font-bold text-xl shadow-2xl transition-transform hover:-translate-y-1">
+                        Inscrivez-vous dès aujourd'hui
+                    </button>
+</div>
+</div>
+</div>
+</section>
+<!-- Footer -->
+<footer class="bg-slate-950 text-slate-300 w-full py-16 px-8 mt-auto">
+<div class="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-12">
+<div class="space-y-6">
+<div class="text-2xl font-black text-white">VOTI CI</div>
+<p class="text-sm leading-relaxed text-slate-400">
+                    Propulser la démocratie ivoirienne dans l'ère numérique avec intégrité, transparence et innovation constante.
+                </p>
+<div class="flex gap-4">
+<a class="w-10 h-10 bg-slate-900 rounded-full flex items-center justify-center text-white hover:bg-primary-container transition-colors" href="#">
+<span class="material-symbols-outlined text-lg">public</span>
+</a>
+<a class="w-10 h-10 bg-slate-900 rounded-full flex items-center justify-center text-white hover:bg-primary-container transition-colors" href="#">
+<span class="material-symbols-outlined text-lg">share</span>
+</a>
+</div>
+</div>
+<div class="space-y-6">
+<h4 class="text-white font-bold uppercase text-xs tracking-widest">Produit</h4>
+<ul class="space-y-4 text-sm">
+<li><a class="text-slate-500 hover:text-orange-400 transition-all duration-200" href="#">Comment voter</a></li>
+<li><a class="text-slate-500 hover:text-orange-400 transition-all duration-200" href="#">Sécurité</a></li>
+<li><a class="text-slate-500 hover:text-orange-400 transition-all duration-200" href="#">Audit blockchain</a></li>
+</ul>
+</div>
+<div class="space-y-6">
+<h4 class="text-white font-bold uppercase text-xs tracking-widest">Légal</h4>
+<ul class="space-y-4 text-sm">
+<li><a class="text-slate-500 hover:text-orange-400 transition-all duration-200" href="#">Confidentialité</a></li>
+<li><a class="text-slate-500 hover:text-orange-400 transition-all duration-200" href="#">Mentions Légales</a></li>
+<li><a class="text-slate-500 hover:text-orange-400 transition-all duration-200" href="#">Conditions d'usage</a></li>
+</ul>
+</div>
+<div class="space-y-6">
+<h4 class="text-white font-bold uppercase text-xs tracking-widest">Contact</h4>
+<ul class="space-y-4 text-sm">
+<li class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-sm">mail</span>
+                        contact@voti.ci
+                    </li>
+<li class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-sm">location_on</span>
+                        Abidjan, Côte d'Ivoire
+                    </li>
+</ul>
+</div>
+</div>
+<div class="max-w-7xl mx-auto border-t border-slate-900 mt-16 pt-8 text-center text-xs text-slate-600">
+            © 2024 VOTI CI. Tous droits réservés. Excellence Électorale en Côte d'Ivoire.
+        </div>
+</footer>
+</body></html>

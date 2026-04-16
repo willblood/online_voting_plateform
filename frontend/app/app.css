@@ -1,13 +1,16 @@
 @import "tailwindcss";
 
 @theme {
+  /* ── Agora dark theme ─────────────────────────────── */
   --font-sans: "Sora", ui-sans-serif, system-ui, sans-serif;
-  --font-display: "Cormorant Garamond", Georgia, serif;
+  --font-display: "Outfit", sans-serif;
   --font-mono: "DM Mono", ui-monospace, monospace;
+  --font-headline: "Plus Jakarta Sans", sans-serif;
+  --font-body: "Manrope", sans-serif;
+  --font-label: "Manrope", sans-serif;
 
   --color-void: #03030c;
   --color-base: #07071a;
-  --color-surface: #0d0d24;
   --color-elevated: #13132e;
   --color-border: #1e1e48;
   --color-gold: #c8a84b;
@@ -17,6 +20,40 @@
   --color-text: #f0f0fc;
   --color-text-dim: #9090c0;
   --color-text-muted: #404078;
+
+  /* ── VOTI CI light theme ──────────────────────────── */
+  --color-primary: #954a00;
+  --color-primary-container: #f77f00;
+  --color-primary-fixed: #ffdcc6;
+  --color-on-primary: #ffffff;
+  --color-on-primary-container: #592a00;
+
+  --color-secondary: #006e2e;
+  --color-secondary-container: #80fc98;
+  --color-secondary-fixed: #80fc98;
+  --color-on-secondary: #ffffff;
+  --color-on-secondary-container: #007432;
+
+  --color-tertiary: #535f74;
+  --color-tertiary-container: #95a0b8;
+  --color-tertiary-fixed: #d7e3fc;
+  --color-on-tertiary: #ffffff;
+  --color-on-tertiary-container: #2c374b;
+
+  --color-surface: #fcf9f4;
+  --color-surface-container-low: #f6f3ee;
+  --color-surface-container: #f0ede9;
+  --color-surface-container-high: #ebe8e3;
+  --color-surface-container-highest: #e5e2dd;
+  --color-surface-container-lowest: #ffffff;
+  --color-on-surface: #1c1c19;
+  --color-on-surface-variant: #574335;
+
+  --color-background: #fcf9f4;
+  --color-on-background: #1c1c19;
+
+  --color-outline: #8a7263;
+  --color-outline-variant: #dec1af;
 }
 
 *,
@@ -109,3 +146,22 @@ body {
 .animate-fade-up-3 { animation: fade-up 0.6s 0.35s ease forwards; opacity: 0; }
 .animate-fade-up-4 { animation: fade-up 0.6s 0.5s ease forwards; opacity: 0; }
 .animate-fade-up-5 { animation: fade-up 0.6s 0.65s ease forwards; opacity: 0; }
+
+/* ── VOTI CI ────────────────────────────────────────── */
+.material-symbols-outlined {
+  font-family: "Material Symbols Outlined";
+  font-variation-settings: "FILL" 0, "wght" 400, "GRAD" 0, "opsz" 24;
+  font-style: normal;
+  line-height: 1;
+  display: inline-block;
+  white-space: nowrap;
+  word-wrap: normal;
+  user-select: none;
+}
+
+.organic-blob {
+  mask-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath fill='%23FF0066' d='M44.7,-76.4C58.8,-69.2,71.8,-59.1,79.6,-46.5C87.4,-33.8,90.1,-18.5,89.9,-3.3C89.6,12,86.5,27.1,79.5,41.2C72.5,55.3,61.6,68.4,48.1,76.5C34.6,84.6,18.5,87.7,2.5,83.4C-13.4,79.1,-29.3,67.4,-44.1,57.7C-58.8,48,-72.4,40.3,-80.1,28.8C-87.7,17.3,-89.4,2.1,-87.3,-12.4C-85.1,-26.8,-79.1,-40.5,-69.5,-52.1C-59.8,-63.7,-46.4,-73.2,-33,-80.7C-19.6,-88.2,-6.4,-93.7,7.1,-105.9C20.6,-118.1,30.5,-83.5,44.7,-76.4Z' transform='translate(100 100)' /%3E%3C/svg%3E");
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath fill='%23FF0066' d='M44.7,-76.4C58.8,-69.2,71.8,-59.1,79.6,-46.5C87.4,-33.8,90.1,-18.5,89.9,-3.3C89.6,12,86.5,27.1,79.5,41.2C72.5,55.3,61.6,68.4,48.1,76.5C34.6,84.6,18.5,87.7,2.5,83.4C-13.4,79.1,-29.3,67.4,-44.1,57.7C-58.8,48,-72.4,40.3,-80.1,28.8C-87.7,17.3,-89.4,2.1,-87.3,-12.4C-85.1,-26.8,-79.1,-40.5,-69.5,-52.1C-59.8,-63.7,-46.4,-73.2,-33,-80.7C-19.6,-88.2,-6.4,-93.7,7.1,-105.9C20.6,-118.1,30.5,-83.5,44.7,-76.4Z' transform='translate(100 100)' /%3E%3C/svg%3E");
+  mask-size: cover;
+  -webkit-mask-size: cover;
+}
