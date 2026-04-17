@@ -163,6 +163,11 @@ export class ElectionsService {
 
     if (!election) throw new NotFoundException('Election not found');
 
+    // Voters and observers may only access non-draft elections
+    if (userRole !== 'ADMIN' && election.status === 'BROUILLON') {
+      throw new NotFoundException('Election not found');
+    }
+
     let can_vote = false;
     let already_voted = false;
 
@@ -285,8 +290,11 @@ export class ElectionsService {
 
     try {
       await this.prisma.candidate.delete({ where: { id: candidateId } });
-    } catch {
-      throw new NotFoundException('Candidate not found');
+    } catch (e: unknown) {
+      if (typeof e === 'object' && e !== null && (e as { code?: string }).code === 'P2025') {
+        throw new NotFoundException('Candidate not found');
+      }
+      throw e;
     }
   }
 

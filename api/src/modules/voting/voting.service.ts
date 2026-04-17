@@ -119,15 +119,23 @@ export class VotingService {
     });
     const encrypted_vote = encryptVote(payload);
 
-    await this.prisma.vote.create({
-      data: {
-        election_id: electionId,
-        user_id: userId,
-        candidate_id: dto.candidate_id,
-        encrypted_vote,
-        receipt_code,
-      },
-    });
+    try {
+      await this.prisma.vote.create({
+        data: {
+          election_id: electionId,
+          user_id: userId,
+          candidate_id: dto.candidate_id,
+          encrypted_vote,
+          receipt_code,
+        },
+      });
+    } catch (e: unknown) {
+      // P2002 = unique constraint violation (concurrent duplicate vote)
+      if (typeof e === 'object' && e !== null && (e as { code?: string }).code === 'P2002') {
+        throw new ConflictException('You have already voted in this election');
+      }
+      throw e;
+    }
 
     return {
       receipt_code,

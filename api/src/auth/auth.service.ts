@@ -205,19 +205,22 @@ export class AuthService {
       where: { email: loginDto.email },
     });
 
-    if (!user || user.status === 'SUSPENDED') {
+    // Always run bcrypt to prevent timing-based email enumeration
+    const DUMMY_HASH = '$2b$10$invalidhashpaddingtomatchbcryptlength000000000000000000000';
+    const valid = await bcrypt.compare(
+      loginDto.password,
+      user?.password_hash ?? DUMMY_HASH,
+    );
+
+    if (!user || !valid || user.status === 'SUSPENDED') {
       throw new UnauthorizedException('Invalid credentials');
     }
 
+    // Branch on status only after password is confirmed correct
     if (user.status === 'PENDING_OTP') {
       throw new UnauthorizedException(
         'Account not yet verified. Please complete OTP verification first.',
       );
-    }
-
-    const valid = await bcrypt.compare(loginDto.password, user.password_hash);
-    if (!valid) {
-      throw new UnauthorizedException('Invalid credentials');
     }
 
     const access_token = await this.jwtService.signAsync({
