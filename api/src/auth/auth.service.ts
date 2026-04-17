@@ -13,6 +13,7 @@ import { PrismaService } from '../database/prisma.service.js';
 import { LoginDto } from './dto/login.dto.js';
 import { RegisterDto } from './dto/register.dto.js';
 import { ResendOtpDto } from './dto/resend-otp.dto.js';
+import { VerifyLoginOtpDto } from './dto/verify-login-otp.dto.js';
 import { VerifyOtpDto } from './dto/verify-otp.dto.js';
 
 const SALT_ROUNDS = 10;
@@ -201,27 +202,108 @@ export class AuthService {
   // ── POST /auth/login ─────────────────────────────────────────────────────
 
   async login(loginDto: LoginDto) {
-    const user = await this.prisma.user.findUnique({
-      where: { email: loginDto.email },
+    const { identifier, password } = loginDto;
+
+    // Accept national_id or email
+    const isEmail = identifier.includes('@');
+    const user = await this.prisma.user.findFirst({
+      where: isEmail ? { email: identifier } : { national_id: identifier },
     });
 
-    // Always run bcrypt to prevent timing-based email enumeration
+    // Always run bcrypt to prevent timing-based enumeration
     const DUMMY_HASH = '$2b$10$invalidhashpaddingtomatchbcryptlength000000000000000000000';
-    const valid = await bcrypt.compare(
-      loginDto.password,
-      user?.password_hash ?? DUMMY_HASH,
-    );
+    const valid = await bcrypt.compare(password, user?.password_hash ?? DUMMY_HASH);
 
     if (!user || !valid || user.status === 'SUSPENDED') {
-      throw new UnauthorizedException('Invalid credentials');
+      throw new UnauthorizedException('Identifiants incorrects.');
     }
 
-    // Branch on status only after password is confirmed correct
     if (user.status === 'PENDING_OTP') {
       throw new UnauthorizedException(
-        'Account not yet verified. Please complete OTP verification first.',
+        'Compte non vérifié. Veuillez compléter la vérification OTP.',
       );
     }
+
+    // ADMIN / OBSERVER → return JWT immediately (no OTP step)
+    if (user.role !== 'VOTER') {
+      const access_token = await this.jwtService.signAsync({
+        sub: user.id,
+        email: user.email,
+        role: user.role,
+      });
+      return {
+        access_token,
+        user: {
+          id: user.id,
+          email: user.email,
+          role: user.role,
+          status: user.status,
+          first_name: user.first_name,
+          last_name: user.last_name,
+        },
+      };
+    }
+
+    // VOTER → generate login OTP and return challenge
+    const otp = generateOtp();
+    const otp_code = await bcrypt.hash(otp, SALT_ROUNDS);
+    const otp_expires_at = new Date(Date.now() + OTP_TTL_MINUTES * 60 * 1000);
+
+    await this.prisma.user.update({
+      where: { id: user.id },
+      data: { otp_code, otp_expires_at, otp_attempts: 0 },
+    });
+
+    const isDev = process.env.NODE_ENV !== 'production';
+    if (isDev) {
+      console.log(`[LOGIN OTP] ${user.national_id}: ${otp}`);
+    }
+
+    return {
+      requires_otp: true,
+      national_id: user.national_id,
+      message: 'Un code OTP a été envoyé sur votre téléphone.',
+      ...(isDev && { __dev_otp: otp }),
+    };
+  }
+
+  // ── POST /auth/verify-login-otp ──────────────────────────────────────────
+
+  async verifyLoginOtp(dto: VerifyLoginOtpDto) {
+    const user = await this.prisma.user.findUnique({
+      where: { national_id: dto.national_id },
+    });
+
+    if (!user || user.status !== 'ACTIVE') {
+      throw new UnauthorizedException('Identifiants incorrects.');
+    }
+
+    if (user.otp_attempts >= OTP_MAX_ATTEMPTS) {
+      throw new HttpException(
+        'Trop de tentatives. Veuillez vous reconnecter pour recevoir un nouveau code.',
+        HttpStatus.TOO_MANY_REQUESTS,
+      );
+    }
+
+    if (!user.otp_expires_at || user.otp_expires_at < new Date()) {
+      throw new UnauthorizedException('Code OTP expiré. Veuillez vous reconnecter.');
+    }
+
+    await this.prisma.user.update({
+      where: { id: user.id },
+      data: { otp_attempts: { increment: 1 } },
+    });
+
+    const valid = await bcrypt.compare(dto.otp_code, user.otp_code ?? '');
+    if (!valid) {
+      throw new UnauthorizedException('Code OTP invalide.');
+    }
+
+    // Clear OTP fields after successful verification
+    await this.prisma.user.update({
+      where: { id: user.id },
+      data: { otp_code: null, otp_expires_at: null, otp_attempts: 0 },
+    });
 
     const access_token = await this.jwtService.signAsync({
       sub: user.id,

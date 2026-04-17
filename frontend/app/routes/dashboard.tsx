@@ -6,6 +6,8 @@ import VoterDashboard from "../features/dashboard/VoterDashboard";
 interface VotiUser {
   email: string;
   role: "ADMIN" | "VOTER" | "OBSERVER";
+  first_name?: string;
+  last_name?: string;
 }
 
 export default function Dashboard() {

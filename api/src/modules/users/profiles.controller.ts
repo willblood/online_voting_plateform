@@ -10,8 +10,10 @@ import {
   Delete,
   Patch,
   UseGuards,
+  Req,
 } from '@nestjs/common';
-import { JwtAuthGuard } from 'src/auth/jwt-auth.guard.js';
+import { Request } from 'express';
+import { JwtAuthGuard } from '../../auth/jwt-auth.guard.js';
 import { ProfilesService } from './profiles.service.js';
 import { CreateProfileDto } from './dto/create-profile.dto.js';
 import { UpdateProfileDto } from './dto/update-profile.dto.js';
@@ -20,10 +22,11 @@ import { UpdateProfileDto } from './dto/update-profile.dto.js';
 @Controller('profiles')
 export class ProfilesController {
   constructor(private readonly profilesService: ProfilesService) {}
+
   @Post()
   @HttpCode(HttpStatus.CREATED)
-  create(@Body() createProfileDto: CreateProfileDto) {
-    return this.profilesService.create(createProfileDto);
+  create(@Req() req: Request & { user: { sub: string } }, @Body() createProfileDto: CreateProfileDto) {
+    return this.profilesService.create(req.user.sub, createProfileDto);
   }
 
   @Get()

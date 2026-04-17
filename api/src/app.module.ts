@@ -6,9 +6,10 @@ import { AuthModule } from './auth/auth.module.js';
 import { UsersModule } from './modules/users/users.module.js';
 import { ElectionsModule } from './modules/elections/elections.module.js';
 import { VotingModule } from './modules/voting/voting.module.js';
+import { GeographyModule } from './modules/geography/geography.module.js';
 
 @Module({
-  imports: [PrismaModule, AuthModule, UsersModule, ElectionsModule, VotingModule],
+  imports: [PrismaModule, AuthModule, UsersModule, ElectionsModule, VotingModule, GeographyModule],
   controllers: [AppController],
   providers: [AppService],
 })

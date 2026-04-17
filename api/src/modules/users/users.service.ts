@@ -74,10 +74,14 @@ export class UsersService {
   }
 
   async update(id: string, updateUserDto: UpdateUserDto) {
+    const { date_of_birth, ...rest } = updateUserDto;
     try {
       return await this.prisma.user.update({
         where: { id },
-        data: updateUserDto,
+        data: {
+          ...rest,
+          ...(date_of_birth ? { date_of_birth: new Date(date_of_birth) } : {}),
+        },
         select: USER_SELECT,
       });
     } catch (error: any) {

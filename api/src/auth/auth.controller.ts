@@ -12,6 +12,7 @@ import { AuthService } from './auth.service.js';
 import { LoginDto } from './dto/login.dto.js';
 import { RegisterDto } from './dto/register.dto.js';
 import { ResendOtpDto } from './dto/resend-otp.dto.js';
+import { VerifyLoginOtpDto } from './dto/verify-login-otp.dto.js';
 import { VerifyOtpDto } from './dto/verify-otp.dto.js';
 import { JwtAuthGuard } from './jwt-auth.guard.js';
 
@@ -41,6 +42,12 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   login(@Body() loginDto: LoginDto) {
     return this.authService.login(loginDto);
+  }
+
+  @Post('verify-login-otp')
+  @HttpCode(HttpStatus.OK)
+  verifyLoginOtp(@Body() dto: VerifyLoginOtpDto) {
+    return this.authService.verifyLoginOtp(dto);
   }
 
   @Get('me')

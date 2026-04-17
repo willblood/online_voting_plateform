@@ -1,10 +1,9 @@
 import {
   Injectable,
-  ConflictException,
   BadRequestException,
   NotFoundException,
 } from '@nestjs/common';
-import { PrismaService } from 'src/database/prisma.service.js';
+import { PrismaService } from '../../database/prisma.service.js';
 import { CreateProfileDto } from './dto/create-profile.dto.js';
 import { UpdateProfileDto } from './dto/update-profile.dto.js';
 
@@ -13,7 +12,7 @@ export class ProfilesService {
   constructor(private readonly prisma: PrismaService) {}
 
   async create(user_id: string, createProfileDto: CreateProfileDto) {
-    const { first_name, last_name, date_of_birth, phone_number, gender } = createProfileDto;
+    const { first_name, last_name, date_of_birth, phone_number } = createProfileDto;
 
     try {
       const user = await this.prisma.user.findUnique({
@@ -24,51 +23,72 @@ export class ProfilesService {
         throw new NotFoundException('User not found');
       }
 
-      const existingProfile = await this.prisma.profile.findUnique({
-        where: { user_id },
-      });
-
-      if (existingProfile) {
-        throw new ConflictException('Profile already exists for this user');
-      }
-
-      const profile = await this.prisma.profile.create({
+      return await this.prisma.user.update({
+        where: { id: user_id },
         data: {
-          user_id,
           first_name,
           last_name,
           date_of_birth: new Date(date_of_birth),
-          phone_number: phone_number || null,
-          gender: gender || null,
+          ...(phone_number ? { phone_number } : {}),
+        },
+        select: {
+          id: true,
+          first_name: true,
+          last_name: true,
+          date_of_birth: true,
+          phone_number: true,
+          email: true,
+          role: true,
+          status: true,
         },
       });
-      return profile;
     } catch (error) {
-      if (error instanceof ConflictException || error instanceof NotFoundException) {
+      if (error instanceof NotFoundException) {
         throw error;
       }
-      throw new BadRequestException('Failed to create profile');
+      throw new BadRequestException('Failed to update profile');
     }
   }
 
   async findAll() {
     try {
-      return await this.prisma.profile.findMany();
-    } catch (error) {
+      return await this.prisma.user.findMany({
+        select: {
+          id: true,
+          first_name: true,
+          last_name: true,
+          date_of_birth: true,
+          phone_number: true,
+          email: true,
+          role: true,
+          status: true,
+        },
+      });
+    } catch {
       throw new BadRequestException('Failed to fetch profiles.');
     }
   }
 
   async findOne(id: string) {
     try {
-      const profile = await this.prisma.profile.findUnique({
+      const user = await this.prisma.user.findUnique({
         where: { id },
+        select: {
+          id: true,
+          first_name: true,
+          last_name: true,
+          date_of_birth: true,
+          phone_number: true,
+          email: true,
+          role: true,
+          status: true,
+        },
       });
 
-      if (!profile) {
+      if (!user) {
         throw new NotFoundException('Profile not found');
       }
-      return profile;
+      return user;
     } catch (error) {
       if (error instanceof NotFoundException) {
         throw error;
@@ -78,18 +98,32 @@ export class ProfilesService {
   }
 
   async update(id: string, updateProfileDto: UpdateProfileDto) {
+    const { first_name, last_name, date_of_birth, phone_number } = updateProfileDto;
     try {
-      const profile = await this.prisma.profile.findUnique({
-        where: { id },
-      });
+      const user = await this.prisma.user.findUnique({ where: { id } });
 
-      if (!profile) {
+      if (!user) {
         throw new NotFoundException('Profile not found');
       }
 
-      return await this.prisma.profile.update({
+      return await this.prisma.user.update({
         where: { id },
-        data: updateProfileDto,
+        data: {
+          ...(first_name ? { first_name } : {}),
+          ...(last_name ? { last_name } : {}),
+          ...(date_of_birth ? { date_of_birth: new Date(date_of_birth) } : {}),
+          ...(phone_number ? { phone_number } : {}),
+        },
+        select: {
+          id: true,
+          first_name: true,
+          last_name: true,
+          date_of_birth: true,
+          phone_number: true,
+          email: true,
+          role: true,
+          status: true,
+        },
       });
     } catch (error) {
       if (error instanceof NotFoundException) {
@@ -101,17 +135,13 @@ export class ProfilesService {
 
   async remove(id: string) {
     try {
-      const profile = await this.prisma.profile.findUnique({
-        where: { id },
-      });
+      const user = await this.prisma.user.findUnique({ where: { id } });
 
-      if (!profile) {
+      if (!user) {
         throw new NotFoundException('Profile not found');
       }
 
-      await this.prisma.profile.delete({
-        where: { id },
-      });
+      await this.prisma.user.delete({ where: { id } });
     } catch (error) {
       if (error instanceof NotFoundException) {
         throw error;

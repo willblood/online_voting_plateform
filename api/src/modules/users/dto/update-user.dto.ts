@@ -1,4 +1,4 @@
-import { IsEnum, IsOptional, IsUUID } from 'class-validator';
+import { IsEnum, IsOptional, IsUUID, IsString, IsDateString, Matches } from 'class-validator';
 import { Role } from '../../../common/enums/role.enum.js';
 
 enum UserStatus {
@@ -8,6 +8,23 @@ enum UserStatus {
 }
 
 export class UpdateUserDto {
+  @IsString()
+  @IsOptional()
+  first_name?: string;
+
+  @IsString()
+  @IsOptional()
+  last_name?: string;
+
+  @IsDateString()
+  @IsOptional()
+  date_of_birth?: string;
+
+  @IsString()
+  @Matches(/^\+225\d{10}$/, { message: 'phone_number must match +225XXXXXXXXXX' })
+  @IsOptional()
+  phone_number?: string;
+
   @IsEnum(Role)
   @IsOptional()
   role?: Role;
