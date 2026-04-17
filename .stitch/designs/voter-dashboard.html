@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+
+<html class="light" lang="fr"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>VOTI CI - Inscription Étape 2</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;family=Manrope:wght@400;500;600;700&amp;family=Outfit:wght@800&amp;family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-primary-container": "#592a00",
+                        "surface-dim": "#dcdad5",
+                        "primary": "#954a00",
+                        "tertiary-container": "#95a0b8",
+                        "on-primary": "#ffffff",
+                        "on-secondary-fixed": "#002109",
+                        "secondary": "#006e2e",
+                        "surface-container-low": "#f6f3ee",
+                        "on-tertiary": "#ffffff",
+                        "inverse-surface": "#31302d",
+                        "primary-fixed": "#ffdcc6",
+                        "on-tertiary-container": "#2c374b",
+                        "on-surface-variant": "#574335",
+                        "surface-container-lowest": "#ffffff",
+                        "on-error-container": "#93000a",
+                        "outline-variant": "#dec1af",
+                        "surface-tint": "#954a00",
+                        "on-secondary": "#ffffff",
+                        "surface-variant": "#e5e2dd",
+                        "secondary-fixed": "#80fc98",
+                        "on-error": "#ffffff",
+                        "tertiary": "#535f74",
+                        "on-secondary-container": "#007432",
+                        "error-container": "#ffdad6",
+                        "inverse-primary": "#ffb784",
+                        "secondary-container": "#80fc98",
+                        "surface-container-high": "#ebe8e3",
+                        "background": "#fcf9f4",
+                        "on-surface": "#1c1c19",
+                        "on-secondary-fixed-variant": "#005321",
+                        "secondary-fixed-dim": "#63df7f",
+                        "surface-bright": "#fcf9f4",
+                        "surface": "#fcf9f4",
+                        "error": "#ba1a1a",
+                        "on-primary-fixed": "#301400",
+                        "on-primary-fixed-variant": "#713700",
+                        "tertiary-fixed": "#d7e3fc",
+                        "inverse-on-surface": "#f3f0eb",
+                        "on-tertiary-fixed-variant": "#3c475b",
+                        "surface-container-highest": "#e5e2dd",
+                        "primary-container": "#f77f00",
+                        "surface-container": "#f0ede9",
+                        "on-background": "#1c1c19",
+                        "outline": "#8a7263",
+                        "primary-fixed-dim": "#ffb784",
+                        "on-tertiary-fixed": "#101c2e",
+                        "tertiary-fixed-dim": "#bbc7df"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "fontFamily": {
+                        "headline": ["Plus Jakarta Sans"],
+                        "body": ["Manrope"],
+                        "label": ["Manrope"]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .organic-wave-1 {
+            background-color: #f77f00;
+            opacity: 0.08;
+            clip-path: polygon(43% 0%, 100% 0%, 100% 45%, 79% 34%, 58% 46%, 40% 32%, 24% 42%, 0% 28%, 0% 0%);
+        }
+        .organic-wave-2 {
+            background-color: #006e2e;
+            opacity: 0.07;
+            clip-path: polygon(0% 100%, 0% 64%, 18% 74%, 39% 62%, 58% 75%, 78% 61%, 100% 72%, 100% 100%);
+        }
+    </style>
+</head>
+<body class="bg-background font-body text-on-surface min-h-screen flex flex-col overflow-x-hidden">
+<!-- TopNavBar Component (Filtered for Step 2) -->
+<!-- Navigation shell suppressed for transactional onboarding focus as per mandate -->
+<header class="fixed top-0 w-full z-50 bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl shadow-sm">
+<div class="flex justify-between items-center max-w-7xl mx-auto px-6 h-20">
+<div class="text-2xl font-black tracking-tighter text-slate-900 dark:text-white font-headline">VOTI CI</div>
+<div class="hidden md:flex gap-8 items-center font-['Plus_Jakarta_Sans'] font-medium text-sm tracking-tight text-slate-600">
+<span>Accueil</span>
+<span>À Propos</span>
+<span>Élections</span>
+<span>FAQs</span>
+<span class="text-orange-600 font-bold border-b-2 border-orange-500 pb-1">S'inscrire</span>
+</div>
+<div class="flex items-center gap-4">
+<button class="text-slate-600 text-sm font-medium hover:opacity-80 transition-all duration-300">Connexion</button>
+</div>
+</div>
+<div class="absolute bottom-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-slate-200 to-transparent"></div>
+</header>
+<main class="flex-grow flex items-center justify-center px-4 py-32 relative">
+<!-- Background Decorations (Subtle Tonal Shifts) -->
+<div class="absolute top-40 -left-20 w-96 h-96 bg-primary-container/10 rounded-full blur-[120px] pointer-events-none"></div>
+<div class="absolute bottom-40 -right-20 w-96 h-96 bg-secondary-container/20 rounded-full blur-[120px] pointer-events-none"></div>
+<!-- Registration Card -->
+<div class="relative w-full max-w-xl bg-surface-container-lowest rounded-[24px] shadow-[0px_12px_32px_rgba(10,22,40,0.06)] overflow-hidden">
+<!-- Organic Decorative Waves (Interior Mandate) -->
+<div class="absolute inset-0 organic-wave-1 pointer-events-none"></div>
+<div class="absolute inset-0 organic-wave-2 pointer-events-none"></div>
+<div class="relative p-10 md:p-14 z-10">
+<div class="mb-10 text-center">
+<span class="inline-block bg-secondary-container text-on-secondary-container px-4 py-1 rounded-full text-[10px] font-extrabold uppercase tracking-widest mb-4">Étape 02/02</span>
+<h1 class="font-headline text-4xl text-on-surface leading-tight tracking-tight mb-3">Informations Personnelles</h1>
+<p class="text-on-surface-variant text-sm max-w-xs mx-auto">Veuillez compléter votre profil électoral pour finaliser votre inscription.</p>
+</div>
+<form class="space-y-6">
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+<div class="space-y-2">
+<label class="block font-label text-[11px] font-bold text-on-surface-variant tracking-wider uppercase pl-1">Prénom</label>
+<input class="w-full h-14 px-5 bg-surface-container-high border-none rounded-xl focus:ring-2 focus:ring-primary-container text-on-surface placeholder:text-surface-dim transition-all outline-none" placeholder="Ex: Koffi" type="text"/>
+</div>
+<div class="space-y-2">
+<label class="block font-label text-[11px] font-bold text-on-surface-variant tracking-wider uppercase pl-1">Nom de famille</label>
+<input class="w-full h-14 px-5 bg-surface-container-high border-none rounded-xl focus:ring-2 focus:ring-primary-container text-on-surface placeholder:text-surface-dim transition-all outline-none" placeholder="Ex: Kouassi" type="text"/>
+</div>
+</div>
+<div class="space-y-2">
+<label class="block font-label text-[11px] font-bold text-on-surface-variant tracking-wider uppercase pl-1">Date de naissance</label>
+<div class="relative">
+<input class="w-full h-14 px-5 bg-surface-container-high border-none rounded-xl focus:ring-2 focus:ring-primary-container text-on-surface outline-none" type="date"/>
+</div>
+</div>
+<div class="space-y-2">
+<label class="block font-label text-[11px] font-bold text-on-surface-variant tracking-wider uppercase pl-1">Commune</label>
+<div class="relative">
+<select class="w-full h-14 px-5 pr-12 bg-surface-container-high border-none rounded-xl focus:ring-2 focus:ring-primary-container text-on-surface appearance-none outline-none">
+<option disabled="" selected="" value="">Sélectionnez votre commune</option>
+<option>Abidjan - Cocody</option>
+<option>Abidjan - Plateau</option>
+<option>Abidjan - Yopougon</option>
+<option>Yamoussoukro</option>
+<option>Bouaké</option>
+<option>San Pedro</option>
+</select>
+<div class="absolute right-5 top-1/2 -translate-y-1/2 pointer-events-none text-on-surface-variant">
+<span class="material-symbols-outlined">expand_more</span>
+</div>
+</div>
+</div>
+<div class="space-y-2 pb-4">
+<label class="block font-label text-[11px] font-bold text-on-surface-variant tracking-wider uppercase pl-1">Bureau de vote</label>
+<div class="relative">
+<select class="w-full h-14 px-5 pr-12 bg-surface-container-high border-none rounded-xl focus:ring-2 focus:ring-primary-container text-on-surface appearance-none outline-none">
+<option disabled="" selected="" value="">Choisissez un centre</option>
+<option>EPP Cocody Centre</option>
+<option>Lycée Sainte Marie</option>
+<option>Collège Jean Mermoz</option>
+</select>
+<div class="absolute right-5 top-1/2 -translate-y-1/2 pointer-events-none text-on-surface-variant">
+<span class="material-symbols-outlined">expand_more</span>
+</div>
+</div>
+</div>
+<div class="pt-4">
+<button class="w-full h-14 bg-primary-container hover:bg-primary text-on-primary font-bold rounded-full shadow-lg hover:-translate-y-0.5 active:translate-y-0 transition-all duration-300 flex items-center justify-center gap-2 group" type="submit">
+<span>S'inscrire</span>
+<span class="material-symbols-outlined group-hover:translate-x-1 transition-transform">arrow_forward</span>
+</button>
+</div>
+</form>
+<div class="mt-10 pt-8 border-t border-surface-variant flex items-center justify-center">
+<p class="text-[12px] text-surface-dim font-medium">
+                        En cliquant sur S'inscrire, vous acceptez nos 
+                        <a class="text-primary hover:underline" href="#">Conditions d'Utilisation</a>
+</p>
+</div>
+</div>
+</div>
+</main>
+<!-- Footer Component (Transactional Mode: Minimal) -->
+<footer class="w-full py-12 px-8 mt-auto bg-slate-950 text-slate-300 font-['Plus_Jakarta_Sans']">
+<div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-8">
+<div class="flex flex-col items-center md:items-start">
+<span class="text-2xl font-black text-white mb-2">VOTI CI</span>
+<p class="text-xs text-slate-500">Excellence Électorale en Côte d'Ivoire.</p>
+</div>
+<div class="flex gap-8 text-xs font-semibold">
+<a class="hover:text-orange-400 transition-colors" href="#">Produit</a>
+<a class="hover:text-orange-400 transition-colors" href="#">Légal</a>
+<a class="hover:text-orange-400 transition-colors" href="#">Contact</a>
+</div>
+<div class="text-[10px] text-slate-600 text-center md:text-right">
+                © 2024 VOTI CI. Tous droits réservés.
+            </div>
+</div>
+</footer>
+</body></html>

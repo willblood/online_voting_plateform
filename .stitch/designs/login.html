@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+
+<html class="light" lang="fr"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Connexion | VOTI CI</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;family=Manrope:wght@400;500;600;700&amp;family=Outfit:wght@800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "on-primary-container": "#592a00",
+                    "surface-dim": "#dcdad5",
+                    "primary": "#954a00",
+                    "tertiary-container": "#95a0b8",
+                    "on-primary": "#ffffff",
+                    "on-secondary-fixed": "#002109",
+                    "secondary": "#006e2e",
+                    "surface-container-low": "#f6f3ee",
+                    "on-tertiary": "#ffffff",
+                    "inverse-surface": "#31302d",
+                    "primary-fixed": "#ffdcc6",
+                    "on-tertiary-container": "#2c374b",
+                    "on-surface-variant": "#574335",
+                    "surface-container-lowest": "#ffffff",
+                    "on-error-container": "#93000a",
+                    "outline-variant": "#dec1af",
+                    "surface-tint": "#954a00",
+                    "on-secondary": "#ffffff",
+                    "surface-variant": "#e5e2dd",
+                    "secondary-fixed": "#80fc98",
+                    "on-error": "#ffffff",
+                    "tertiary": "#535f74",
+                    "on-secondary-container": "#007432",
+                    "error-container": "#ffdad6",
+                    "inverse-primary": "#ffb784",
+                    "secondary-container": "#80fc98",
+                    "surface-container-high": "#ebe8e3",
+                    "background": "#fcf9f4",
+                    "on-surface": "#1c1c19",
+                    "on-secondary-fixed-variant": "#005321",
+                    "secondary-fixed-dim": "#63df7f",
+                    "surface-bright": "#fcf9f4",
+                    "surface": "#fcf9f4",
+                    "error": "#ba1a1a",
+                    "on-primary-fixed": "#301400",
+                    "on-primary-fixed-variant": "#713700",
+                    "tertiary-fixed": "#d7e3fc",
+                    "inverse-on-surface": "#f3f0eb",
+                    "on-tertiary-fixed-variant": "#3c475b",
+                    "surface-container-highest": "#e5e2dd",
+                    "primary-container": "#f77f00",
+                    "surface-container": "#f0ede9",
+                    "on-background": "#1c1c19",
+                    "outline": "#8a7263",
+                    "primary-fixed-dim": "#ffb784",
+                    "on-tertiary-fixed": "#101c2e",
+                    "tertiary-fixed-dim": "#bbc7df"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "fontFamily": {
+                    "headline": ["Plus Jakarta Sans"],
+                    "body": ["Manrope"],
+                    "label": ["Manrope"]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .organic-wave {
+            clip-path: ellipse(80% 50% at 50% 100%);
+        }
+        .glass-panel {
+            backdrop-filter: blur(24px);
+            background-color: rgba(255, 255, 255, 0.8);
+        }
+        /* Custom UI logic: hide specific shell elements per instruction */
+        .no-border { border: none !important; }
+    </style>
+</head>
+<body class="bg-background font-body text-on-background selection:bg-primary-container selection:text-on-primary-container">
+<!-- TopNavBar (Shared Component) -->
+<header class="fixed top-0 w-full z-50 bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl shadow-sm dark:shadow-none">
+<div class="flex justify-between items-center max-w-7xl mx-auto px-6 h-20">
+<div class="text-2xl font-black tracking-tighter text-slate-900 dark:text-white">
+                VOTI CI
+            </div>
+<nav class="hidden md:flex items-center gap-8 font-['Plus_Jakarta_Sans'] font-medium text-sm tracking-tight">
+<a class="text-slate-600 dark:text-slate-400 hover:text-orange-500 transition-all duration-300 hover:opacity-80" href="#">Accueil</a>
+<a class="text-slate-600 dark:text-slate-400 hover:text-orange-500 transition-all duration-300 hover:opacity-80" href="#">À Propos</a>
+<a class="text-slate-600 dark:text-slate-400 hover:text-orange-500 transition-all duration-300 hover:opacity-80" href="#">Élections</a>
+<a class="text-slate-600 dark:text-slate-400 hover:text-orange-500 transition-all duration-300 hover:opacity-80" href="#">FAQs</a>
+<a class="text-slate-600 dark:text-slate-400 hover:text-orange-500 transition-all duration-300 hover:opacity-80" href="#">Contact</a>
+</nav>
+<div class="flex items-center gap-4 font-['Plus_Jakarta_Sans'] font-medium text-sm tracking-tight">
+<a class="text-orange-600 dark:text-orange-400 font-bold border-b-2 border-orange-500 pb-1" href="#">Connexion</a>
+<button class="bg-primary-container text-white px-6 py-2 rounded-full transition-all duration-300 hover:opacity-80 scale-95 active:scale-90">
+                    S'inscrire
+                </button>
+</div>
+</div>
+<div class="absolute bottom-0 w-full bg-gradient-to-r from-transparent via-slate-200 to-transparent h-[1px]"></div>
+</header>
+<main class="min-h-screen pt-20 flex overflow-hidden">
+<!-- Left Panel: Navy Institutional Branding -->
+<section class="hidden lg:flex w-1/2 bg-[#0A1628] relative items-center justify-center p-20 overflow-hidden">
+<!-- Organic SVG Blobs (The "Flow" shapes) -->
+<div class="absolute top-[-10%] right-[-10%] w-[600px] h-[600px] bg-primary-container opacity-[0.08] blur-[80px] rounded-full"></div>
+<div class="absolute bottom-[-20%] left-[-10%] w-[800px] h-[800px] bg-secondary opacity-[0.07] blur-[120px] rounded-full"></div>
+<div class="relative z-10 space-y-8 max-w-xl">
+<div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 backdrop-blur-sm">
+<span class="w-2 h-2 rounded-full bg-secondary-fixed"></span>
+<span class="text-white/70 text-xs font-bold tracking-widest uppercase">Institution Digitalisée</span>
+</div>
+<h1 class="font-headline text-6xl font-extrabold text-white leading-[1.1] tracking-tight">
+                    L'excellence électorale <span class="text-primary-container">à votre portée.</span>
+</h1>
+<p class="text-slate-400 text-lg leading-relaxed font-body max-w-md">
+                    Accédez à votre espace sécurisé pour participer au futur de la nation ivoirienne. Transparence, intégrité et innovation au cœur de votre citoyenneté.
+                </p>
+<div class="pt-8">
+<img class="rounded-3xl w-full h-64 object-cover shadow-2xl opacity-80" data-alt="Modern geometric sculpture in ivory coast colors of orange and green under soft professional studio lighting representing unity and growth" src="https://lh3.googleusercontent.com/aida-public/AB6AXuANe1CizwUF1b_GS1T4rAyVoSsD3GW6g67Ak7RemyF5m7Z4IgmFaUgKCp7D_V-q9cAovkKLYXNO6v5OJI8IIca5jHf16K7CNRwCOvvtWVt_vhekF_-VPAGwvJIRvLSr07nS9BmC_WT-xcsjRgo_bIUiwtP30mlMWc4nMmmw9y5pTsJbzVIzNYAxpbZ0ct8gjlB4k8Ynf8mIDrtZ8p83vYkpk2VK1-90MQbmjw5M2Yt7abNv5xiqF1uBhJxOuPxNOk8we-iAK-Ao1tI"/>
+</div>
+</div>
+</section>
+<!-- Right Panel: Login Form -->
+<section class="w-full lg:w-1/2 flex items-center justify-center p-8 lg:p-24 bg-surface">
+<div class="w-full max-w-md space-y-10">
+<div class="space-y-2">
+<h2 class="font-headline text-3xl font-extrabold text-on-surface">Bonjour à nouveau</h2>
+<p class="text-tertiary font-medium">Veuillez entrer vos identifiants pour continuer.</p>
+</div>
+<form class="space-y-6">
+<!-- Email Field -->
+<div class="space-y-2">
+<label class="font-label text-sm font-semibold text-on-surface-variant uppercase tracking-wider" for="email">Adresse Email</label>
+<div class="relative group">
+<div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+<span class="material-symbols-outlined text-tertiary-container" data-icon="mail">mail</span>
+</div>
+<input class="block w-full pl-12 pr-4 py-4 bg-surface-container-high border-none rounded-xl focus:ring-0 group-focus-within:bg-surface-container-highest transition-all duration-300 placeholder:text-tertiary-container" id="email" name="email" placeholder="nom@exemple.ci" type="email"/>
+<div class="absolute bottom-0 left-0 h-0.5 w-0 bg-primary group-focus-within:w-full transition-all duration-500"></div>
+</div>
+</div>
+<!-- Password Field -->
+<div class="space-y-2">
+<div class="flex justify-between items-center">
+<label class="font-label text-sm font-semibold text-on-surface-variant uppercase tracking-wider" for="password">Mot de passe</label>
+<a class="text-xs font-bold text-primary hover:opacity-80 transition-opacity" href="#">Mot de passe oublié ?</a>
+</div>
+<div class="relative group">
+<div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+<span class="material-symbols-outlined text-tertiary-container" data-icon="lock">lock</span>
+</div>
+<input class="block w-full pl-12 pr-4 py-4 bg-surface-container-high border-none rounded-xl focus:ring-0 group-focus-within:bg-surface-container-highest transition-all duration-300 placeholder:text-tertiary-container" id="password" name="password" placeholder="••••••••" type="password"/>
+<div class="absolute bottom-0 left-0 h-0.5 w-0 bg-primary group-focus-within:w-full transition-all duration-500"></div>
+<button class="absolute inset-y-0 right-0 pr-4 flex items-center text-tertiary-container hover:text-primary transition-colors" type="button">
+<span class="material-symbols-outlined" data-icon="visibility">visibility</span>
+</button>
+</div>
+</div>
+<!-- Options -->
+<div class="flex items-center">
+<input class="w-5 h-5 rounded border-outline-variant text-primary focus:ring-primary-container bg-surface-container-low cursor-pointer" id="remember" type="checkbox"/>
+<label class="ml-3 text-sm font-medium text-on-surface-variant cursor-pointer select-none" for="remember">Rester connecté</label>
+</div>
+<!-- Submit Button -->
+<button class="w-full py-4 px-6 rounded-full bg-gradient-to-r from-primary to-primary-container text-white font-bold text-lg shadow-lg hover:-translate-y-0.5 hover:shadow-xl active:scale-95 transition-all duration-300" type="submit">
+                        Se connecter
+                    </button>
+</form>
+<!-- Footer Sign Up Link -->
+<p class="text-center text-tertiary font-medium">
+                    Vous n'avez pas de compte ? 
+                    <a class="text-primary font-bold hover:underline underline-offset-4 ml-1" href="#">Créer un profil</a>
+</p>
+<!-- Social/External Login Mockup -->
+<div class="pt-6">
+<div class="relative flex items-center py-5">
+<div class="flex-grow border-t border-surface-container-highest"></div>
+<span class="flex-shrink mx-4 text-tertiary-container text-xs font-bold uppercase tracking-widest">Ou continuer avec</span>
+<div class="flex-grow border-t border-surface-container-highest"></div>
+</div>
+<div class="grid grid-cols-2 gap-4">
+<button class="flex items-center justify-center gap-3 py-3 px-4 rounded-xl border border-outline-variant hover:bg-surface-container-low transition-colors">
+<span class="material-symbols-outlined text-on-surface" data-icon="fingerprint">fingerprint</span>
+<span class="text-sm font-bold text-on-surface">Biométrie</span>
+</button>
+<button class="flex items-center justify-center gap-3 py-3 px-4 rounded-xl border border-outline-variant hover:bg-surface-container-low transition-colors">
+<span class="material-symbols-outlined text-on-surface" data-icon="smart_button">smart_button</span>
+<span class="text-sm font-bold text-on-surface">ID National</span>
+</button>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- Footer Suppression Logic: Suppress full footer on login for focus -->
+<footer class="lg:hidden w-full py-8 px-6 bg-slate-950 text-center">
+<p class="font-['Plus_Jakarta_Sans'] text-slate-500 text-xs uppercase tracking-widest">
+            © 2024 VOTI CI. Excellence Électorale.
+        </p>
+</footer>
+</body></html>

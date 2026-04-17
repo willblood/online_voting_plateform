@@ -1,16 +1,26 @@
-import { IsBoolean, IsEnum, IsOptional, IsUUID } from 'class-validator';
+import { IsEnum, IsOptional, IsUUID } from 'class-validator';
 import { Role } from '../../../common/enums/role.enum.js';
+
+enum UserStatus {
+  PENDING_OTP = 'PENDING_OTP',
+  ACTIVE = 'ACTIVE',
+  SUSPENDED = 'SUSPENDED',
+}
 
 export class UpdateUserDto {
   @IsEnum(Role)
   @IsOptional()
   role?: Role;
 
+  @IsEnum(UserStatus)
+  @IsOptional()
+  status?: UserStatus;
+
   @IsUUID()
   @IsOptional()
-  municipality_id?: string;
+  commune_id?: string;
 
-  @IsBoolean()
+  @IsUUID()
   @IsOptional()
-  is_active?: boolean;
+  bureau_de_vote_id?: string;
 }

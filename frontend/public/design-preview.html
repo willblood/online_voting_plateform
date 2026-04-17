@@ -1,0 +1,1061 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>VOTI CI — Plateforme Électorale de Côte d'Ivoire</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --orange:        #F77F00;
+      --orange-bright: #FF9520;
+      --orange-dim:    rgba(247,127,0,0.08);
+      --orange-mid:    rgba(247,127,0,0.15);
+      --green:         #009A44;
+      --green-bright:  #00B851;
+      --green-dim:     rgba(0,154,68,0.08);
+      --navy:          #0A1628;
+      --navy-mid:      #162340;
+      --white:         #FFFFFF;
+      --cream:         #F8F5F0;
+      --border:        #E8E2D9;
+      --text:          #0A1628;
+      --text-dim:      #4A5B72;
+      --text-muted:    #94A3B8;
+      --shadow:        0 4px 24px rgba(10,22,40,0.08);
+      --shadow-lg:     0 12px 48px rgba(10,22,40,0.12);
+      --radius:        20px;
+      --radius-sm:     12px;
+      --radius-pill:   100px;
+    }
+
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--cream);
+      color: var(--text);
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+
+    /* ── Navbar ── */
+    .navbar {
+      position: sticky; top: 0; z-index: 100;
+      background: rgba(255,255,255,0.97);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      padding: 0 3rem;
+      height: 70px;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .nav-logo { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+    .flag-icon {
+      display: grid; grid-template-columns: 1fr 1fr 1fr;
+      overflow: hidden; border-radius: 8px;
+    }
+    .flag-icon > span:nth-child(1) { background: var(--orange); }
+    .flag-icon > span:nth-child(2) { background: white; }
+    .flag-icon > span:nth-child(3) { background: var(--green); }
+    .flag-38 { width: 38px; height: 38px; }
+    .flag-28 { width: 28px; height: 28px; border-radius: 6px; }
+    .flag-32 { width: 32px; height: 32px; }
+    .nav-logo-text {
+      font-family: 'Outfit', sans-serif;
+      font-size: 1.4rem; font-weight: 800; letter-spacing: -0.02em; color: var(--navy);
+    }
+    .nav-logo-text span { color: var(--orange); }
+    .nav-links { display: flex; align-items: center; gap: 4px; list-style: none; }
+    .nav-links a {
+      text-decoration: none; font-size: 0.875rem; font-weight: 500; color: var(--text-dim);
+      padding: 6px 14px; border-radius: var(--radius-pill); transition: all 0.2s;
+    }
+    .nav-links a:hover { color: var(--orange); background: var(--orange-dim); }
+    .nav-links a.active { color: var(--orange); font-weight: 600; }
+    .nav-actions { display: flex; align-items: center; gap: 10px; }
+
+    /* ── Buttons ── */
+    .btn {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 10px 22px; border-radius: var(--radius-pill);
+      font-family: 'DM Sans', sans-serif; font-size: 0.875rem; font-weight: 600;
+      cursor: pointer; transition: all 0.2s; text-decoration: none; border: 2px solid transparent;
+    }
+    .btn-outline  { color: var(--orange); border-color: var(--orange); background: transparent; }
+    .btn-outline:hover { background: var(--orange-dim); }
+    .btn-primary  { background: var(--orange); color: white; border-color: var(--orange); }
+    .btn-primary:hover { background: var(--orange-bright); transform: translateY(-1px); box-shadow: 0 4px 16px rgba(247,127,0,0.35); }
+    .btn-green    { background: var(--green); color: white; border-color: var(--green); }
+    .btn-green:hover { background: var(--green-bright); transform: translateY(-1px); }
+    .btn-lg       { padding: 14px 32px; font-size: 1rem; }
+    .btn-white    { background: white; color: var(--orange); border-color: white; font-weight: 700; }
+    .btn-white:hover { background: rgba(255,255,255,0.9); transform: translateY(-2px); }
+    .btn-white-outline { background: transparent; color: white; border-color: rgba(255,255,255,0.5); }
+    .btn-white-outline:hover { border-color: white; background: rgba(255,255,255,0.1); }
+
+    /* ── Hero ── */
+    .hero {
+      position: relative; min-height: calc(100vh - 70px);
+      display: flex; align-items: center; overflow: hidden; padding: 4rem 3rem;
+    }
+    .hero-bg {
+      position: absolute; inset: 0;
+      background: linear-gradient(135deg, #FFF9F2 0%, #F8F5F0 50%, #F0FAF5 100%);
+    }
+    .hero-orb {
+      position: absolute; border-radius: 50%; pointer-events: none;
+    }
+    .hero-orb-1 {
+      width: 700px; height: 700px;
+      background: radial-gradient(circle, rgba(247,127,0,0.07) 0%, transparent 65%);
+      top: -250px; right: -150px;
+    }
+    .hero-orb-2 {
+      width: 500px; height: 500px;
+      background: radial-gradient(circle, rgba(0,154,68,0.06) 0%, transparent 65%);
+      bottom: -150px; left: 25%;
+    }
+    .hero-content {
+      position: relative; max-width: 1200px; margin: 0 auto; width: 100%;
+      display: grid; grid-template-columns: 1fr 1fr; gap: 5rem; align-items: center;
+    }
+    .hero-badge {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 6px 16px; margin-bottom: 1.5rem;
+      background: var(--orange-dim); border: 1px solid rgba(247,127,0,0.2);
+      border-radius: var(--radius-pill);
+      font-size: 0.72rem; font-weight: 700; color: var(--orange);
+      letter-spacing: 0.08em; text-transform: uppercase;
+    }
+    .hero-badge-dot {
+      width: 7px; height: 7px; border-radius: 50%; background: var(--orange);
+      animation: pulse 2s infinite;
+    }
+    @keyframes pulse {
+      0%,100% { opacity:1; transform:scale(1); }
+      50% { opacity:0.5; transform:scale(1.6); }
+    }
+    .hero-title {
+      font-family: 'Outfit', sans-serif;
+      font-size: clamp(2.6rem,4.5vw,3.8rem); font-weight: 800;
+      line-height: 1.08; letter-spacing: -0.03em; color: var(--navy); margin-bottom: 1.5rem;
+    }
+    .hero-title .oc { color: var(--orange); }
+    .hero-title .gc { color: var(--green); }
+    .hero-subtitle {
+      font-size: 1.05rem; color: var(--text-dim); max-width: 460px;
+      margin-bottom: 2.5rem; line-height: 1.8;
+    }
+    .hero-actions { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 3rem; }
+    .hero-stats {
+      display: flex; gap: 2.5rem; padding-top: 2rem; border-top: 1px solid var(--border);
+    }
+    .hero-stat-num {
+      font-family: 'Outfit', sans-serif; font-size: 1.75rem; font-weight: 800; color: var(--navy);
+    }
+    .hero-stat-num .o { color: var(--orange); }
+    .hero-stat-label { font-size: 0.75rem; color: var(--text-muted); margin-top: 2px; }
+
+    /* Hero visual card */
+    .hero-visual { position: relative; }
+    .hero-card {
+      background: white; border-radius: 24px; overflow: hidden;
+      box-shadow: var(--shadow-lg); position: relative; min-height: 500px;
+      display: flex; flex-direction: column;
+    }
+    .card-waves { position: absolute; inset: 0; pointer-events: none; width: 100%; height: 100%; }
+    .hero-card-body { position: relative; z-index: 1; padding: 2.5rem; flex: 1; display: flex; flex-direction: column; }
+    .hero-card-logo { display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 0.5rem; }
+    .hero-card-logo-text { font-family:'Outfit',sans-serif; font-weight:800; font-size:1.1rem; color:var(--navy); }
+    .hero-card-logo-text span { color:var(--orange); }
+    .hero-card-title { font-family:'Outfit',sans-serif; font-size:1.25rem; font-weight:700; color:var(--navy); text-align:center; margin-bottom:0.25rem; }
+    .hero-card-sub { font-size:0.82rem; color:var(--text-muted); text-align:center; margin-bottom:1.75rem; }
+    .election-pill {
+      display:inline-flex; align-items:center; gap:6px;
+      padding:4px 12px; background:var(--orange-dim); border-radius:var(--radius-pill);
+      font-size:0.7rem; font-weight:700; color:var(--orange); letter-spacing:0.05em;
+      text-transform:uppercase; margin-bottom:1rem;
+    }
+    .election-name { font-family:'Outfit',sans-serif; font-weight:700; font-size:1rem; color:var(--navy); margin-bottom:1.25rem; }
+    .bar-row { display:flex; align-items:center; gap:10px; margin-bottom:9px; }
+    .bar-name { font-size:0.76rem; color:var(--text-dim); width:88px; flex-shrink:0; }
+    .bar-track { flex:1; height:8px; background:#F0EDE8; border-radius:4px; overflow:hidden; }
+    .bar-fill { height:100%; border-radius:4px; }
+    .bf-orange { background:var(--orange); }
+    .bf-green  { background:var(--green); }
+    .bf-navy   { background:var(--navy); }
+    .bar-pct { font-size:0.72rem; font-weight:700; color:var(--text-dim); width:30px; text-align:right; }
+    .vote-now-btn {
+      display:block; width:100%; padding:12px; margin-top:1.25rem;
+      background:var(--orange); color:white; border:none; border-radius:var(--radius-sm);
+      font-family:'Outfit',sans-serif; font-size:0.9rem; font-weight:700;
+      cursor:pointer; text-align:center; transition:all 0.2s; letter-spacing:0.02em;
+    }
+    .vote-now-btn:hover { background:var(--orange-bright); transform:translateY(-1px); }
+    .secure-strip {
+      display:flex; justify-content:space-between; align-items:center;
+      margin-top:1.25rem; padding:0.875rem 1rem;
+      background:var(--green-dim); border-radius:var(--radius-sm);
+      border:1px solid rgba(0,154,68,0.15);
+    }
+    .secure-strip-left { font-size:0.78rem; color:var(--green); font-weight:600; }
+    .secure-strip-right { font-size:0.7rem; color:var(--text-muted); }
+
+    .float-badge {
+      position:absolute; background:white; border-radius:14px;
+      padding:9px 15px; box-shadow:0 6px 24px rgba(0,0,0,0.12);
+      display:flex; align-items:center; gap:8px;
+      font-size:0.78rem; font-weight:600; color:var(--navy); z-index:10;
+      animation: floaty 3s ease-in-out infinite;
+    }
+    .float-badge-1 { top:-18px; right:30px; animation-delay:0s; }
+    .float-badge-2 { bottom:24px; left:-24px; animation-delay:1.5s; }
+    @keyframes floaty {
+      0%,100% { transform:translateY(0); }
+      50% { transform:translateY(-5px); }
+    }
+    .float-dot { width:8px; height:8px; border-radius:50%; }
+
+    /* ── Section base ── */
+    .section { padding: 5rem 3rem; max-width: 1200px; margin: 0 auto; }
+    .section-full { padding: 5rem 3rem; }
+    .section-center { text-align: center; }
+    .section-label {
+      display:inline-flex; align-items:center; gap:8px;
+      font-size:0.7rem; font-weight:700; text-transform:uppercase;
+      letter-spacing:0.14em; color:var(--orange); margin-bottom:0.875rem;
+    }
+    .section-label::before {
+      content:''; display:block; width:22px; height:2px;
+      background:var(--orange); border-radius:2px;
+    }
+    .section-label.centered::before { display:none; }
+    .section-label.centered::after {
+      content:''; display:block; width:22px; height:2px;
+      background:var(--orange); border-radius:2px;
+    }
+    .section-title {
+      font-family:'Outfit',sans-serif;
+      font-size:clamp(1.8rem,3vw,2.6rem); font-weight:800; letter-spacing:-0.025em;
+      color:var(--navy); line-height:1.18; margin-bottom:1rem;
+    }
+    .section-sub { font-size:1rem; color:var(--text-dim); line-height:1.75; max-width:550px; }
+    .section-sub.centered { margin: 0 auto; }
+
+    /* ── Features ── */
+    .features-bg { background: white; }
+    .features-grid {
+      display:grid; grid-template-columns:repeat(3,1fr); gap:1.5rem; margin-top:3rem;
+    }
+    .feature-card {
+      background:var(--cream); border-radius:var(--radius); padding:2rem;
+      border:1px solid var(--border); transition:all 0.3s; overflow:hidden; position:relative;
+    }
+    .feature-card:hover { transform:translateY(-5px); box-shadow:var(--shadow-lg); border-color:transparent; background:white; }
+    .feature-icon {
+      width:52px; height:52px; border-radius:14px;
+      display:flex; align-items:center; justify-content:center; font-size:1.5rem; margin-bottom:1.25rem;
+    }
+    .fi-orange { background:var(--orange-dim); }
+    .fi-green  { background:var(--green-dim); }
+    .fi-navy   { background:rgba(10,22,40,0.05); }
+    .feature-title {
+      font-family:'Outfit',sans-serif; font-size:1.05rem; font-weight:700; color:var(--navy); margin-bottom:0.625rem;
+    }
+    .feature-desc { font-size:0.875rem; color:var(--text-dim); line-height:1.7; }
+
+    /* ── How it works ── */
+    .steps-wrap { position:relative; }
+    .steps-grid {
+      display:grid; grid-template-columns:repeat(4,1fr); gap:2rem; margin-top:3rem; position:relative;
+    }
+    .steps-grid::before {
+      content:''; position:absolute; top:27px;
+      left:calc(12.5% + 28px); right:calc(12.5% + 28px);
+      height:2px; background:linear-gradient(to right,var(--orange),var(--green)); z-index:0;
+      border-radius:2px;
+    }
+    .step-card { text-align:center; position:relative; z-index:1; }
+    .step-num {
+      width:56px; height:56px; border-radius:50%;
+      display:flex; align-items:center; justify-content:center; margin:0 auto 1.25rem;
+      font-family:'Outfit',sans-serif; font-size:1.25rem; font-weight:800; color:white;
+    }
+    .sn1 { background:var(--orange); }
+    .sn2 { background:#E08800; }
+    .sn3 { background:#008C3C; }
+    .sn4 { background:var(--green); }
+    .step-title { font-family:'Outfit',sans-serif; font-size:0.95rem; font-weight:700; color:var(--navy); margin-bottom:0.5rem; }
+    .step-desc  { font-size:0.82rem; color:var(--text-dim); line-height:1.65; }
+
+    /* ── Stats band ── */
+    .stats-band { background:var(--navy); padding:3.5rem 3rem; }
+    .stats-inner {
+      max-width:1200px; margin:0 auto;
+      display:grid; grid-template-columns:repeat(4,1fr); gap:2rem; text-align:center;
+    }
+    .stat-divider { border-right:1px solid rgba(255,255,255,0.06); }
+    .stat-num {
+      font-family:'Outfit',sans-serif; font-size:2.75rem; font-weight:900;
+      color:var(--orange); margin-bottom:0.25rem; letter-spacing:-0.02em;
+    }
+    .stat-label { font-size:0.82rem; color:rgba(255,255,255,0.4); letter-spacing:0.03em; }
+
+    /* ── CTA ── */
+    .cta-section {
+      background:linear-gradient(135deg,var(--orange) 0%,#D97000 100%);
+      padding:6rem 3rem; position:relative; overflow:hidden; text-align:center;
+    }
+    .cta-section::before {
+      content:''; position:absolute; top:-120px; right:-120px;
+      width:450px; height:450px; border-radius:50%; background:rgba(255,255,255,0.06);
+    }
+    .cta-section::after {
+      content:''; position:absolute; bottom:-160px; left:-60px;
+      width:380px; height:380px; border-radius:50%; background:rgba(0,0,0,0.06);
+    }
+    .cta-inner { max-width:680px; margin:0 auto; position:relative; z-index:1; }
+    .cta-title {
+      font-family:'Outfit',sans-serif; font-size:clamp(2rem,4vw,3.1rem);
+      font-weight:800; color:white; letter-spacing:-0.025em; margin-bottom:1rem;
+    }
+    .cta-sub { font-size:1.05rem; color:rgba(255,255,255,0.8); margin-bottom:2.5rem; line-height:1.7; }
+    .cta-actions { display:flex; gap:14px; justify-content:center; flex-wrap:wrap; }
+
+    /* ── Footer ── */
+    .footer { background:var(--navy); padding:5rem 3rem 2rem; }
+    .footer-inner { max-width:1200px; margin:0 auto; }
+    .footer-grid {
+      display:grid; grid-template-columns:2fr 1fr 1fr 1.5fr; gap:3rem;
+      padding-bottom:3rem; border-bottom:1px solid rgba(255,255,255,0.07);
+    }
+    .footer-logo { display:flex; align-items:center; gap:10px; text-decoration:none; margin-bottom:1rem; }
+    .footer-logo-text { font-family:'Outfit',sans-serif; font-size:1.2rem; font-weight:800; color:white; }
+    .footer-logo-text span { color:var(--orange); }
+    .footer-desc { font-size:0.82rem; color:rgba(255,255,255,0.35); line-height:1.75; margin-bottom:1.5rem; }
+    .footer-socials { display:flex; gap:8px; }
+    .social-btn {
+      width:36px; height:36px; border-radius:50%;
+      background:rgba(255,255,255,0.07); display:flex; align-items:center; justify-content:center;
+      color:rgba(255,255,255,0.4); text-decoration:none; font-size:0.8rem; font-weight:700;
+      transition:all 0.2s;
+    }
+    .social-btn:hover { background:var(--orange); color:white; }
+    .footer-col-title {
+      font-family:'Outfit',sans-serif; font-size:0.72rem; font-weight:700;
+      text-transform:uppercase; letter-spacing:0.12em; color:white; margin-bottom:1.25rem;
+    }
+    .footer-links { list-style:none; display:flex; flex-direction:column; gap:0.625rem; }
+    .footer-links a { font-size:0.82rem; color:rgba(255,255,255,0.35); text-decoration:none; transition:color 0.2s; }
+    .footer-links a:hover { color:var(--orange); }
+    .contact-item { display:flex; align-items:flex-start; gap:9px; margin-bottom:0.6rem; }
+    .contact-item-text { font-size:0.82rem; color:rgba(255,255,255,0.35); line-height:1.5; }
+    .footer-bottom {
+      padding-top:1.5rem; display:flex; align-items:center; justify-content:space-between;
+    }
+    .footer-copy { font-size:0.75rem; color:rgba(255,255,255,0.2); }
+    .footer-flag-mini { display:flex; gap:2px; }
+    .flag-s { width:10px; height:16px; border-radius:2px; }
+
+    /* ── Page: Login ── */
+    .page-login {
+      min-height: 100vh; display:grid; grid-template-columns:1fr 1fr;
+      background: var(--cream);
+    }
+    .login-left {
+      background: var(--navy); position:relative; overflow:hidden;
+      display:flex; flex-direction:column; justify-content:space-between; padding:3rem;
+    }
+    .login-waves { position:absolute; inset:0; pointer-events:none; }
+    .login-left-content { position:relative; z-index:1; }
+    .login-tagline {
+      font-family:'Outfit',sans-serif; font-size:2.5rem; font-weight:800;
+      color:white; line-height:1.15; letter-spacing:-0.025em; margin-top:3rem;
+    }
+    .login-tagline .oc { color:var(--orange); }
+    .login-sub-left { font-size:0.9rem; color:rgba(255,255,255,0.45); margin-top:1rem; line-height:1.7; }
+    .login-right {
+      display:flex; align-items:center; justify-content:center;
+      padding:3rem 2rem; background:white;
+    }
+    .login-form-wrap { width:100%; max-width:420px; }
+    .login-header { margin-bottom:2.5rem; }
+    .login-title {
+      font-family:'Outfit',sans-serif; font-size:2rem; font-weight:800;
+      color:var(--navy); margin-bottom:0.5rem; letter-spacing:-0.02em;
+    }
+    .login-sub { font-size:0.875rem; color:var(--text-dim); line-height:1.6; }
+    .form-group { margin-bottom:1.25rem; }
+    .form-label {
+      display:block; font-size:0.75rem; font-weight:600; color:var(--text-dim);
+      margin-bottom:6px; letter-spacing:0.03em;
+    }
+    .form-input {
+      width:100%; padding:12px 16px; border:1.5px solid var(--border);
+      border-radius:var(--radius-sm); font-family:'DM Sans',sans-serif;
+      font-size:0.9rem; color:var(--navy); background:var(--cream); outline:none;
+      transition:all 0.2s;
+    }
+    .form-input:focus { border-color:var(--orange); background:white; box-shadow:0 0 0 3px var(--orange-dim); }
+    .form-input::placeholder { color:var(--text-muted); }
+    .form-row { display:grid; grid-template-columns:1fr 1fr; gap:1rem; }
+    .form-submit { width:100%; margin-top:0.5rem; }
+    .form-footer { text-align:center; margin-top:1.5rem; font-size:0.82rem; color:var(--text-muted); }
+    .form-footer a { color:var(--orange); font-weight:600; text-decoration:none; }
+
+    /* ── OTP page ── */
+    .otp-wrap { text-align:center; }
+    .otp-inputs { display:flex; gap:12px; justify-content:center; margin:2rem 0; }
+    .otp-input {
+      width:54px; height:60px; text-align:center; font-family:'Outfit',sans-serif;
+      font-size:1.5rem; font-weight:700; border:2px solid var(--border);
+      border-radius:var(--radius-sm); background:var(--cream); color:var(--navy); outline:none;
+      transition:all 0.2s;
+    }
+    .otp-input:focus { border-color:var(--orange); background:white; box-shadow:0 0 0 3px var(--orange-dim); }
+
+    /* ── Dashboard shell ── */
+    .dashboard-shell { display:grid; grid-template-columns:260px 1fr; min-height:100vh; }
+    .sidebar {
+      background:var(--navy); padding:0; display:flex; flex-direction:column;
+      position:sticky; top:0; height:100vh; overflow-y:auto;
+    }
+    .sidebar-logo { padding:1.5rem; border-bottom:1px solid rgba(255,255,255,0.06); }
+    .sidebar-logo a { display:flex; align-items:center; gap:10px; text-decoration:none; }
+    .sidebar-logo-text { font-family:'Outfit',sans-serif; font-weight:800; font-size:1.1rem; color:white; }
+    .sidebar-logo-text span { color:var(--orange); }
+    .sidebar-nav { padding:1.25rem 0.75rem; flex:1; }
+    .sidebar-section-label {
+      font-size:0.62rem; font-weight:700; text-transform:uppercase; letter-spacing:0.12em;
+      color:rgba(255,255,255,0.25); padding:0.875rem 0.75rem 0.375rem;
+    }
+    .sidebar-link {
+      display:flex; align-items:center; gap:10px;
+      padding:10px 12px; border-radius:var(--radius-sm); margin-bottom:2px;
+      text-decoration:none; font-size:0.875rem; font-weight:500; color:rgba(255,255,255,0.45);
+      transition:all 0.2s;
+    }
+    .sidebar-link:hover { background:rgba(255,255,255,0.05); color:rgba(255,255,255,0.8); }
+    .sidebar-link.active { background:var(--orange); color:white; font-weight:600; }
+    .sidebar-link .link-icon { font-size:1rem; width:20px; text-align:center; }
+    .sidebar-footer { padding:1.25rem; border-top:1px solid rgba(255,255,255,0.06); }
+    .sidebar-user { display:flex; align-items:center; gap:10px; }
+    .sidebar-avatar {
+      width:36px; height:36px; border-radius:50%; background:var(--orange);
+      display:flex; align-items:center; justify-content:center;
+      font-family:'Outfit',sans-serif; font-weight:700; font-size:0.85rem; color:white; flex-shrink:0;
+    }
+    .sidebar-user-name { font-size:0.82rem; font-weight:600; color:rgba(255,255,255,0.8); }
+    .sidebar-user-role { font-size:0.7rem; color:rgba(255,255,255,0.3); }
+
+    .dashboard-main { background:var(--cream); overflow-y:auto; }
+    .dash-topbar {
+      background:white; border-bottom:1px solid var(--border);
+      padding:0 2rem; height:64px; display:flex; align-items:center; justify-content:space-between;
+      position:sticky; top:0; z-index:10;
+    }
+    .dash-greeting { font-family:'Outfit',sans-serif; font-weight:700; font-size:1.1rem; color:var(--navy); }
+    .dash-topbar-right { display:flex; align-items:center; gap:12px; }
+    .topbar-icon-btn {
+      width:38px; height:38px; border-radius:50%;
+      background:var(--cream); border:1px solid var(--border);
+      display:flex; align-items:center; justify-content:center; cursor:pointer; font-size:1rem;
+      transition:all 0.2s;
+    }
+    .topbar-icon-btn:hover { background:var(--orange-dim); border-color:var(--orange); }
+    .dash-content { padding:2rem; }
+
+    .dash-grid-top { display:grid; grid-template-columns:1fr 1fr 1fr; gap:1.5rem; margin-bottom:1.5rem; }
+    .dash-grid-bottom { display:grid; grid-template-columns:1fr 1fr; gap:1.5rem; }
+    .dash-card {
+      background:white; border-radius:var(--radius); padding:1.5rem;
+      border:1px solid var(--border); box-shadow:var(--shadow);
+    }
+    .dash-card-title { font-family:'Outfit',sans-serif; font-size:0.78rem; font-weight:700; text-transform:uppercase; letter-spacing:0.08em; color:var(--text-muted); margin-bottom:1rem; }
+    .kpi-num { font-family:'Outfit',sans-serif; font-size:2.25rem; font-weight:900; color:var(--navy); letter-spacing:-0.02em; }
+    .kpi-change { display:flex; align-items:center; gap:4px; font-size:0.78rem; font-weight:600; margin-top:4px; }
+    .kpi-up   { color:var(--green); }
+    .kpi-down { color:#E53E3E; }
+
+    .election-ongoing-card {
+      background: linear-gradient(135deg, var(--navy) 0%, #162340 100%);
+      border-radius:var(--radius); padding:1.75rem; position:relative; overflow:hidden;
+      grid-column: span 2;
+    }
+    .election-ongoing-card::before {
+      content:''; position:absolute; top:-60px; right:-60px;
+      width:200px; height:200px; border-radius:50%; background:rgba(247,127,0,0.08);
+    }
+    .election-ongoing-tag {
+      display:inline-flex; align-items:center; gap:6px;
+      padding:4px 12px; background:rgba(247,127,0,0.15); border-radius:var(--radius-pill);
+      font-size:0.68rem; font-weight:700; color:var(--orange); letter-spacing:0.06em;
+      text-transform:uppercase; margin-bottom:0.875rem;
+    }
+    .live-dot { width:6px; height:6px; border-radius:50%; background:var(--orange); animation:pulse 1.5s infinite; }
+    .election-ongoing-title { font-family:'Outfit',sans-serif; font-size:1.35rem; font-weight:800; color:white; margin-bottom:0.5rem; }
+    .election-ongoing-sub { font-size:0.82rem; color:rgba(255,255,255,0.4); margin-bottom:1.5rem; }
+
+    .activity-row {
+      display:flex; align-items:center; justify-content:space-between;
+      padding:10px 0; border-bottom:1px solid var(--border); font-size:0.82rem;
+    }
+    .activity-row:last-child { border-bottom:none; }
+    .activity-name { color:var(--text-dim); font-weight:500; }
+    .activity-status {
+      display:inline-flex; align-items:center; gap:5px; padding:3px 10px;
+      border-radius:var(--radius-pill); font-size:0.7rem; font-weight:600;
+    }
+    .status-active   { background:var(--green-dim); color:var(--green); }
+    .status-pending  { background:var(--orange-dim); color:var(--orange); }
+    .status-done     { background:rgba(10,22,40,0.05); color:var(--text-muted); }
+
+    /* ── Page separator utility ── */
+    .page-separator {
+      background:linear-gradient(to right,var(--orange),var(--green));
+      height:3px; margin:0;
+    }
+    .page-label {
+      background:var(--navy); color:white; padding:1rem 3rem;
+      font-family:'Outfit',sans-serif; font-weight:700; font-size:0.78rem;
+      letter-spacing:0.12em; text-transform:uppercase;
+    }
+    .page-label span { color:var(--orange); margin-right:0.75rem; }
+  </style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════════════
+     PAGE 1 — LANDING / HOME
+══════════════════════════════════════════════ -->
+<div class="page-label"><span>01</span> Accueil — Landing Page</div>
+
+<!-- Navbar -->
+<nav class="navbar">
+  <a href="#" class="nav-logo">
+    <div class="flag-icon flag-38"><span></span><span></span><span></span></div>
+    <span class="nav-logo-text">VOTI <span>CI</span></span>
+  </a>
+  <ul class="nav-links">
+    <li><a href="#" class="active">Accueil</a></li>
+    <li><a href="#">À Propos</a></li>
+    <li><a href="#">Élections</a></li>
+    <li><a href="#">FAQs</a></li>
+    <li><a href="#">Contact</a></li>
+  </ul>
+  <div class="nav-actions">
+    <a href="#login" class="btn btn-outline">Connexion</a>
+    <a href="#register" class="btn btn-primary">S'inscrire</a>
+  </div>
+</nav>
+
+<!-- Hero -->
+<section class="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-orb hero-orb-1"></div>
+  <div class="hero-orb hero-orb-2"></div>
+  <div class="hero-content">
+    <div>
+      <div class="hero-badge"><span class="hero-badge-dot"></span>Plateforme officielle · Côte d'Ivoire</div>
+      <h1 class="hero-title">Votez en toute<br><span class="oc">confiance,</span><br><span class="gc">partout.</span></h1>
+      <p class="hero-subtitle">VOTI CI est la plateforme nationale de gestion électorale de Côte d'Ivoire. Participez aux élections, suivez les résultats en temps réel et exercez votre droit civique en toute sécurité.</p>
+      <div class="hero-actions">
+        <a href="#register" class="btn btn-primary btn-lg">S'inscrire maintenant →</a>
+        <a href="#how" class="btn btn-outline btn-lg">Comment ça marche</a>
+      </div>
+      <div class="hero-stats">
+        <div>
+          <div class="hero-stat-num">14<span class="o">+</span></div>
+          <div class="hero-stat-label">Régions couvertes</div>
+        </div>
+        <div>
+          <div class="hero-stat-num">520<span class="o">k</span></div>
+          <div class="hero-stat-label">Électeurs inscrits</div>
+        </div>
+        <div>
+          <div class="hero-stat-num">3</div>
+          <div class="hero-stat-label">Élections actives</div>
+        </div>
+      </div>
+    </div>
+    <div class="hero-visual">
+      <div class="float-badge float-badge-1">
+        <div class="float-dot" style="background:var(--green)"></div>Résultats en direct
+      </div>
+      <div class="float-badge float-badge-2">
+        <div class="float-dot" style="background:var(--orange)"></div>Vote sécurisé · JWT
+      </div>
+      <div class="hero-card">
+        <svg class="card-waves" viewBox="0 0 440 500" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+          <path d="M310 0 C290 50,270 100,295 165 C320 230,370 250,390 320 C410 390,395 440,440 500 L440 0 Z" fill="rgba(247,127,0,0.07)"/>
+          <path d="M355 0 C325 70,345 140,365 210 C385 280,420 300,440 380 L440 0 Z" fill="rgba(247,127,0,0.04)"/>
+          <path d="M0 80 C35 140,25 210,5 275 L0 500 C25 455,45 410,20 345 C-5 280,-15 190,0 80 Z" fill="rgba(0,154,68,0.06)"/>
+          <path d="M0 220 C45 265,35 330,12 395 C-10 440,0 475,0 500 L0 220 Z" fill="rgba(0,154,68,0.04)"/>
+        </svg>
+        <div class="hero-card-body">
+          <div>
+            <div class="hero-card-logo">
+              <div class="flag-icon flag-28"><span></span><span></span><span></span></div>
+              <span class="hero-card-logo-text">VOTI <span>CI</span></span>
+            </div>
+            <div class="hero-card-title">Élections en cours</div>
+            <div class="hero-card-sub">Exercez votre droit civique</div>
+          </div>
+          <div>
+            <div class="election-pill"><span>🔴</span>EN COURS</div>
+            <div class="election-name">Élection Présidentielle 2025</div>
+            <div class="bar-row">
+              <div class="bar-name">Candidat A</div>
+              <div class="bar-track"><div class="bar-fill bf-orange" style="width:45%"></div></div>
+              <div class="bar-pct">45%</div>
+            </div>
+            <div class="bar-row">
+              <div class="bar-name">Candidat B</div>
+              <div class="bar-track"><div class="bar-fill bf-green" style="width:38%"></div></div>
+              <div class="bar-pct">38%</div>
+            </div>
+            <div class="bar-row">
+              <div class="bar-name">Candidat C</div>
+              <div class="bar-track"><div class="bar-fill bf-navy" style="width:17%"></div></div>
+              <div class="bar-pct">17%</div>
+            </div>
+            <button class="vote-now-btn">Voter maintenant →</button>
+            <div class="secure-strip">
+              <span class="secure-strip-left">✓ Connexion sécurisée</span>
+              <span class="secure-strip-right">Chiffrement JWT + bcrypt</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Features -->
+<section class="section-full features-bg">
+  <div class="section" style="padding-top:0;padding-bottom:0;">
+    <div class="section-center">
+      <div class="section-label centered" style="justify-content:center;">Pourquoi VOTI CI</div>
+      <h2 class="section-title">Une plateforme pensée pour<br>la démocratie ivoirienne</h2>
+      <p class="section-sub centered">Sécurité, transparence et accessibilité au cœur de chaque élection nationale.</p>
+    </div>
+    <div class="features-grid">
+      <div class="feature-card"><div class="feature-icon fi-orange">🔒</div><div class="feature-title">Sécurité maximale</div><div class="feature-desc">Authentification JWT, hachage bcrypt et vérification OTP par SMS. Votre vote est protégé par les standards les plus élevés.</div></div>
+      <div class="feature-card"><div class="feature-icon fi-green">📊</div><div class="feature-title">Résultats en temps réel</div><div class="feature-desc">Suivez les résultats en direct à tous les niveaux : commune, département, région et national avec des graphiques dynamiques.</div></div>
+      <div class="feature-card"><div class="feature-icon fi-navy">🗺️</div><div class="feature-title">Couverture nationale</div><div class="feature-desc">De la commune au niveau national, notre hiérarchie géographique couvre l'ensemble du territoire ivoirien.</div></div>
+      <div class="feature-card"><div class="feature-icon fi-orange">✅</div><div class="feature-title">Vérification OTP</div><div class="feature-desc">Chaque électeur est vérifié par SMS avant de voter. Une identité, un vote, pour une intégrité totale.</div></div>
+      <div class="feature-card"><div class="feature-icon fi-green">👁️</div><div class="feature-title">Observateurs accrédités</div><div class="feature-desc">Les observateurs électoraux ont accès à un tableau de bord dédié pour surveiller le processus en toute transparence.</div></div>
+      <div class="feature-card"><div class="feature-icon fi-navy">📱</div><div class="feature-title">Accessible partout</div><div class="feature-desc">Votez depuis n'importe quel appareil. Optimisé pour mobile, tablette et ordinateur.</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- How it works -->
+<section class="section" id="how">
+  <div class="section-label">Processus</div>
+  <h2 class="section-title">Comment ça marche ?</h2>
+  <p class="section-sub">En 4 étapes simples, participez aux élections depuis chez vous.</p>
+  <div class="steps-grid">
+    <div class="step-card"><div class="step-num sn1">1</div><div class="step-title">Inscrivez-vous</div><div class="step-desc">Créez votre compte avec votre numéro d'identification nationale, email et téléphone.</div></div>
+    <div class="step-card"><div class="step-num sn2">2</div><div class="step-title">Vérifiez votre identité</div><div class="step-desc">Saisissez le code OTP reçu par SMS pour activer votre compte d'électeur.</div></div>
+    <div class="step-card"><div class="step-num sn3">3</div><div class="step-title">Votez</div><div class="step-desc">Choisissez votre candidat et confirmez votre vote de façon sécurisée.</div></div>
+    <div class="step-card"><div class="step-num sn4">4</div><div class="step-title">Suivez les résultats</div><div class="step-desc">Consultez les résultats en temps réel par commune, département, région ou national.</div></div>
+  </div>
+</section>
+
+<!-- Stats band -->
+<div class="stats-band">
+  <div class="stats-inner">
+    <div class="stat-divider"><div class="stat-num">14</div><div class="stat-label">Régions</div></div>
+    <div class="stat-divider"><div class="stat-num">31</div><div class="stat-label">Départements</div></div>
+    <div class="stat-divider"><div class="stat-num">197</div><div class="stat-label">Communes</div></div>
+    <div><div class="stat-num">520k</div><div class="stat-label">Électeurs inscrits</div></div>
+  </div>
+</div>
+
+<!-- CTA -->
+<section class="cta-section">
+  <div class="cta-inner">
+    <h2 class="cta-title">Prêt à exercer votre droit de vote ?</h2>
+    <p class="cta-sub">Inscrivez-vous dès aujourd'hui et participez à la construction de la démocratie ivoirienne.</p>
+    <div class="cta-actions">
+      <a href="#register" class="btn btn-white btn-lg">S'inscrire gratuitement</a>
+      <a href="#" class="btn btn-white-outline btn-lg">En savoir plus</a>
+    </div>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer class="footer">
+  <div class="footer-inner">
+    <div class="footer-grid">
+      <div>
+        <a href="#" class="footer-logo">
+          <div class="flag-icon flag-32"><span></span><span></span><span></span></div>
+          <span class="footer-logo-text">VOTI <span>CI</span></span>
+        </a>
+        <p class="footer-desc">Plateforme nationale de gestion électorale de la République de Côte d'Ivoire. Transparente, sécurisée et accessible à tous les citoyens.</p>
+        <div class="footer-socials">
+          <a href="#" class="social-btn">f</a>
+          <a href="#" class="social-btn">𝕏</a>
+          <a href="#" class="social-btn">in</a>
+          <a href="#" class="social-btn">▶</a>
+        </div>
+      </div>
+      <div>
+        <div class="footer-col-title">Produit</div>
+        <ul class="footer-links">
+          <li><a href="#">Site web</a></li>
+          <li><a href="#">Élections</a></li>
+          <li><a href="#">Résultats</a></li>
+          <li><a href="#">Candidats</a></li>
+        </ul>
+      </div>
+      <div>
+        <div class="footer-col-title">Légal</div>
+        <ul class="footer-links">
+          <li><a href="#">Conditions d'utilisation</a></li>
+          <li><a href="#">Politique de confidentialité</a></li>
+          <li><a href="#">FAQs</a></li>
+          <li><a href="#">Accessibilité</a></li>
+        </ul>
+      </div>
+      <div>
+        <div class="footer-col-title">Contact</div>
+        <div class="contact-item"><span>📍</span><span class="contact-item-text">Plateau, Abidjan, Côte d'Ivoire</span></div>
+        <div class="contact-item"><span>✉️</span><span class="contact-item-text">contact@voti-ci.gouv.ci</span></div>
+        <div class="contact-item"><span>📞</span><span class="contact-item-text">+225 27 20 XX XX XX</span></div>
+        <div class="contact-item"><span>🕐</span><span class="contact-item-text">Lun–Ven : 08h–17h</span></div>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <div class="footer-copy">© 2026 VOTI CI — Tous droits réservés. République de Côte d'Ivoire.</div>
+      <div class="footer-flag-mini">
+        <div class="flag-s" style="background:var(--orange)"></div>
+        <div class="flag-s" style="background:white"></div>
+        <div class="flag-s" style="background:var(--green)"></div>
+      </div>
+    </div>
+  </div>
+</footer>
+
+
+<!-- ══════════════════════════════════════════════
+     PAGE 2 — LOGIN
+══════════════════════════════════════════════ -->
+<div class="page-separator"></div>
+<div class="page-label"><span>02</span> Connexion — Login</div>
+
+<div class="page-login" id="login" style="min-height:100vh;">
+  <!-- Left decorative panel -->
+  <div class="login-left">
+    <svg class="login-waves" viewBox="0 0 400 900" xmlns="http://www.w3.org/2000/svg">
+      <path d="M60 0 C40 80,60 160,40 240 C20 320,0 380,20 460 C40 540,80 580,60 660 C40 740,0 800,20 900 L-20 900 L-20 0 Z" fill="rgba(247,127,0,0.12)"/>
+      <path d="M100 0 C70 100,90 200,70 300 C50 400,20 460,40 560 C60 660,100 700,80 800 L-20 800 L-20 0 Z" fill="rgba(247,127,0,0.07)"/>
+      <path d="M380 0 C360 80,380 180,360 260 C340 340,300 380,320 460 C340 540,380 580,400 660 L420 0 Z" fill="rgba(0,154,68,0.1)"/>
+      <path d="M340 0 C320 100,340 200,320 300 C300 400,270 440,290 540 L420 540 L420 0 Z" fill="rgba(0,154,68,0.06)"/>
+    </svg>
+    <div class="login-left-content">
+      <a href="#" class="nav-logo" style="position:relative;z-index:1;">
+        <div class="flag-icon flag-38"><span></span><span></span><span></span></div>
+        <span class="nav-logo-text" style="color:white;">VOTI <span style="color:var(--orange);">CI</span></span>
+      </a>
+      <div class="login-tagline" style="margin-top:4rem;">
+        Votre voix,<br>votre <span class="oc">avenir.</span>
+      </div>
+      <p class="login-sub-left">Connectez-vous à votre espace électoral sécurisé et participez à la démocratie ivoirienne.</p>
+    </div>
+    <div style="position:relative;z-index:1;">
+      <div style="display:flex;gap:10px;align-items:center;">
+        <div style="width:32px;height:32px;border-radius:50%;background:rgba(247,127,0,0.2);display:flex;align-items:center;justify-content:center;font-size:0.875rem;">🔒</div>
+        <span style="font-size:0.78rem;color:rgba(255,255,255,0.4);">Connexion chiffrée JWT · Certifié CEI</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Right form panel -->
+  <div class="login-right">
+    <div class="login-form-wrap">
+      <div style="text-align:center;margin-bottom:2rem;">
+        <div class="flag-icon flag-38" style="margin:0 auto 1rem;"><span></span><span></span><span></span></div>
+      </div>
+      <div class="login-header">
+        <div class="login-title">Bon retour !</div>
+        <div class="login-sub">Connectez-vous à votre espace VOTI CI pour accéder aux élections en cours.</div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Adresse email</label>
+        <input class="form-input" type="email" placeholder="votant@exemple.ci">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Mot de passe</label>
+        <input class="form-input" type="password" placeholder="••••••••••••">
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem;font-size:0.8rem;">
+        <label style="display:flex;align-items:center;gap:6px;color:var(--text-dim);cursor:pointer;">
+          <input type="checkbox" style="accent-color:var(--orange);"> Rester connecté
+        </label>
+        <a href="#" style="color:var(--orange);font-weight:600;text-decoration:none;">Mot de passe oublié ?</a>
+      </div>
+      <button class="btn btn-primary form-submit btn-lg" style="justify-content:center;">
+        Se connecter →
+      </button>
+      <div class="form-footer">
+        Pas encore inscrit ? <a href="#register">Créer un compte</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════════
+     PAGE 3 — REGISTER (STEP 1 + OTP)
+══════════════════════════════════════════════ -->
+<div class="page-separator"></div>
+<div class="page-label"><span>03</span> Inscription — Register + OTP</div>
+
+<div style="background:var(--cream);padding:4rem 3rem;">
+  <div style="max-width:1100px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:2rem;align-items:start;">
+
+    <!-- Step 1: Credentials -->
+    <div style="background:white;border-radius:var(--radius);padding:2.5rem;box-shadow:var(--shadow);border:1px solid var(--border);">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:2rem;">
+        <div style="width:32px;height:32px;border-radius:50%;background:var(--orange);display:flex;align-items:center;justify-content:center;font-size:0.85rem;font-weight:800;color:white;font-family:'Outfit',sans-serif;">1</div>
+        <div>
+          <div style="font-family:'Outfit',sans-serif;font-weight:700;font-size:0.95rem;color:var(--navy);">Créez vos identifiants</div>
+          <div style="font-size:0.72rem;color:var(--text-muted);">Étape 1 sur 2</div>
+        </div>
+        <div style="flex:1;height:3px;border-radius:2px;background:linear-gradient(to right,var(--orange) 50%,var(--border) 50%);margin-left:1rem;"></div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Numéro d'identification nationale (NIN)</label>
+        <input class="form-input" type="text" placeholder="CI-XXXXXXXXX">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Adresse email</label>
+        <input class="form-input" type="email" placeholder="votant@exemple.ci">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Numéro de téléphone</label>
+        <input class="form-input" type="tel" placeholder="+225 07 XX XX XX XX">
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Mot de passe</label>
+          <input class="form-input" type="password" placeholder="••••••••">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Confirmer le mot de passe</label>
+          <input class="form-input" type="password" placeholder="••••••••">
+        </div>
+      </div>
+      <div style="font-size:0.75rem;color:var(--text-muted);margin-bottom:1.25rem;">
+        En vous inscrivant, vous acceptez les <a href="#" style="color:var(--orange);font-weight:600;">Conditions d'utilisation</a> et la <a href="#" style="color:var(--orange);font-weight:600;">Politique de confidentialité</a>.
+      </div>
+      <button class="btn btn-primary form-submit btn-lg" style="justify-content:center;">Continuer →</button>
+      <div class="form-footer">Déjà inscrit ? <a href="#login">Se connecter</a></div>
+    </div>
+
+    <!-- OTP Verification -->
+    <div style="background:white;border-radius:var(--radius);padding:2.5rem;box-shadow:var(--shadow);border:1px solid var(--border);">
+      <div class="otp-wrap">
+        <div style="font-size:3rem;margin-bottom:1rem;">📱</div>
+        <h3 style="font-family:'Outfit',sans-serif;font-size:1.5rem;font-weight:800;color:var(--navy);margin-bottom:0.5rem;">Vérifiez votre téléphone</h3>
+        <p style="font-size:0.875rem;color:var(--text-dim);max-width:320px;margin:0 auto 0.5rem;line-height:1.7;">
+          Un code à 6 chiffres a été envoyé au numéro <strong>+225 07 XX XX XX XX</strong>
+        </p>
+        <div class="otp-inputs">
+          <input class="otp-input" type="text" maxlength="1" value="4">
+          <input class="otp-input" type="text" maxlength="1" value="8">
+          <input class="otp-input" type="text" maxlength="1" value="3">
+          <input class="otp-input" type="text" maxlength="1" style="border-color:var(--orange);" placeholder="_">
+          <input class="otp-input" type="text" maxlength="1" placeholder="_">
+          <input class="otp-input" type="text" maxlength="1" placeholder="_">
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;justify-content:center;margin-bottom:1.75rem;font-size:0.82rem;color:var(--text-muted);">
+          <span>Code expire dans</span>
+          <span style="font-family:'Outfit',sans-serif;font-weight:700;color:var(--orange);">08:42</span>
+        </div>
+        <button class="btn btn-primary form-submit btn-lg" style="justify-content:center;">Vérifier le code</button>
+        <div class="form-footer">Vous n'avez pas reçu le code ? <a href="#">Renvoyer</a></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════════
+     PAGE 4 — VOTER DASHBOARD
+══════════════════════════════════════════════ -->
+<div class="page-separator"></div>
+<div class="page-label"><span>04</span> Tableau de bord — Voter Dashboard</div>
+
+<div class="dashboard-shell" style="height:auto;min-height:85vh;" id="dashboard">
+  <!-- Sidebar -->
+  <div class="sidebar" style="position:relative;height:auto;">
+    <div class="sidebar-logo">
+      <a href="#" class="nav-logo">
+        <div class="flag-icon flag-28"><span></span><span></span><span></span></div>
+        <span class="sidebar-logo-text">VOTI <span>CI</span></span>
+      </a>
+    </div>
+    <div class="sidebar-nav">
+      <div class="sidebar-section-label">Principal</div>
+      <a href="#" class="sidebar-link active"><span class="link-icon">🏠</span>Tableau de bord</a>
+      <a href="#" class="sidebar-link"><span class="link-icon">🗳️</span>Voter</a>
+      <a href="#" class="sidebar-link"><span class="link-icon">📊</span>Résultats</a>
+      <a href="#" class="sidebar-link"><span class="link-icon">📅</span>Calendrier</a>
+      <div class="sidebar-section-label" style="margin-top:1rem;">Compte</div>
+      <a href="#" class="sidebar-link"><span class="link-icon">👤</span>Mon profil</a>
+      <a href="#" class="sidebar-link"><span class="link-icon">📋</span>Guide électoral</a>
+      <a href="#" class="sidebar-link"><span class="link-icon">⚙️</span>Paramètres</a>
+    </div>
+    <div class="sidebar-footer">
+      <div class="sidebar-user">
+        <div class="sidebar-avatar">AK</div>
+        <div>
+          <div class="sidebar-user-name">Ama Kouassi</div>
+          <div class="sidebar-user-role">Électrice · Abidjan</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main content -->
+  <div class="dashboard-main">
+    <div class="dash-topbar">
+      <div class="dash-greeting">Bonjour, Ama 👋</div>
+      <div class="dash-topbar-right">
+        <div class="topbar-icon-btn">🔔</div>
+        <div class="topbar-icon-btn">❓</div>
+        <div style="display:flex;align-items:center;gap:8px;cursor:pointer;">
+          <div class="sidebar-avatar" style="width:34px;height:34px;font-size:0.78rem;">AK</div>
+          <span style="font-size:0.82rem;font-weight:600;color:var(--navy);">Ama K. ▾</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="dash-content">
+      <!-- KPI row -->
+      <div class="dash-grid-top">
+        <div class="dash-card">
+          <div class="dash-card-title">Élections actives</div>
+          <div class="kpi-num">3</div>
+          <div class="kpi-change kpi-up">↑ 1 nouvelle cette semaine</div>
+        </div>
+        <div class="dash-card">
+          <div class="dash-card-title">Votes enregistrés</div>
+          <div class="kpi-num" style="color:var(--green);">1</div>
+          <div class="kpi-change" style="color:var(--text-muted);">Présidentielle 2025</div>
+        </div>
+        <div class="dash-card">
+          <div class="dash-card-title">Prochaine clôture</div>
+          <div class="kpi-num" style="color:var(--orange);">2j</div>
+          <div class="kpi-change" style="color:var(--text-muted);">Législatives — 18 avr.</div>
+        </div>
+      </div>
+
+      <!-- Active election + results -->
+      <div class="dash-grid-bottom" style="margin-bottom:1.5rem;">
+        <div class="election-ongoing-card" style="grid-column:auto;">
+          <div style="position:relative;z-index:1;">
+            <div class="election-ongoing-tag"><span class="live-dot"></span>EN COURS</div>
+            <div class="election-ongoing-title">Élection Présidentielle 2025</div>
+            <div class="election-ongoing-sub">Clôture le 20 avril 2026 · 14 régions</div>
+            <a href="#" class="btn btn-primary" style="display:inline-flex;">Voter maintenant →</a>
+          </div>
+        </div>
+
+        <!-- Live results -->
+        <div class="dash-card">
+          <div class="dash-card-title">Résultats en direct — Présidentielle</div>
+          <div class="bar-row" style="margin-bottom:14px;">
+            <div class="bar-name" style="width:100px;">Candidat A</div>
+            <div class="bar-track" style="height:10px;"><div class="bar-fill bf-orange" style="width:45%"></div></div>
+            <div class="bar-pct">45%</div>
+          </div>
+          <div class="bar-row" style="margin-bottom:14px;">
+            <div class="bar-name" style="width:100px;">Candidat B</div>
+            <div class="bar-track" style="height:10px;"><div class="bar-fill bf-green" style="width:38%"></div></div>
+            <div class="bar-pct">38%</div>
+          </div>
+          <div class="bar-row" style="margin-bottom:14px;">
+            <div class="bar-name" style="width:100px;">Candidat C</div>
+            <div class="bar-track" style="height:10px;"><div class="bar-fill bf-navy" style="width:17%"></div></div>
+            <div class="bar-pct">17%</div>
+          </div>
+          <div style="font-size:0.7rem;color:var(--text-muted);margin-top:0.5rem;font-style:italic;">* Résultats préliminaires — Mise à jour en temps réel</div>
+        </div>
+      </div>
+
+      <!-- Activities + Stats -->
+      <div class="dash-grid-bottom">
+        <div class="dash-card">
+          <div class="dash-card-title">Activités électorales</div>
+          <div class="activity-row">
+            <span class="activity-name">Présidentielle 2025</span>
+            <span class="activity-status status-active">● En cours</span>
+          </div>
+          <div class="activity-row">
+            <span class="activity-name">Législatives 2025</span>
+            <span class="activity-status status-pending">● En attente</span>
+          </div>
+          <div class="activity-row">
+            <span class="activity-name">Municipales Abidjan</span>
+            <span class="activity-status status-pending">● En attente</span>
+          </div>
+          <div class="activity-row">
+            <span class="activity-name">Référendum 2024</span>
+            <span class="activity-status status-done">✓ Clôturé</span>
+          </div>
+        </div>
+
+        <div class="dash-card">
+          <div class="dash-card-title">Statistiques nationales</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+            <div style="text-align:center;padding:1rem;background:var(--orange-dim);border-radius:var(--radius-sm);">
+              <div style="font-family:'Outfit',sans-serif;font-size:1.75rem;font-weight:900;color:var(--orange);">362</div>
+              <div style="font-size:0.72rem;color:var(--text-muted);">Électeurs inscrits (k)</div>
+            </div>
+            <div style="text-align:center;padding:1rem;background:var(--green-dim);border-radius:var(--radius-sm);">
+              <div style="font-family:'Outfit',sans-serif;font-size:1.75rem;font-weight:900;color:var(--green);">344</div>
+              <div style="font-size:0.72rem;color:var(--text-muted);">Votes enregistrés (k)</div>
+            </div>
+            <div style="text-align:center;padding:1rem;background:rgba(10,22,40,0.04);border-radius:var(--radius-sm);">
+              <div style="font-family:'Outfit',sans-serif;font-size:1.75rem;font-weight:900;color:var(--navy);">3</div>
+              <div style="font-size:0.72rem;color:var(--text-muted);">Élections actives</div>
+            </div>
+            <div style="text-align:center;padding:1rem;background:rgba(247,127,0,0.05);border-radius:var(--radius-sm);">
+              <div style="font-family:'Outfit',sans-serif;font-size:1.75rem;font-weight:900;color:var(--orange);">94%</div>
+              <div style="font-size:0.72rem;color:var(--text-muted);">Taux de participation</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Final Footer -->
+<div class="page-separator"></div>
+<footer class="footer" style="padding-top:2rem;padding-bottom:1.5rem;">
+  <div class="footer-inner">
+    <div class="footer-bottom" style="border-top:none;padding-top:0;">
+      <div style="display:flex;align-items:center;gap:12px;">
+        <div class="flag-icon flag-28"><span></span><span></span><span></span></div>
+        <span class="footer-logo-text" style="font-size:1rem;">VOTI <span>CI</span></span>
+        <span class="footer-copy" style="margin-left:0.5rem;">— Design Preview · © 2026</span>
+      </div>
+      <div class="footer-flag-mini">
+        <div class="flag-s" style="background:var(--orange)"></div>
+        <div class="flag-s" style="background:white"></div>
+        <div class="flag-s" style="background:var(--green)"></div>
+      </div>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>
