@@ -80,13 +80,16 @@ export class AuthService {
       },
     });
 
-    // 4. Mock OTP: log to console + return in response for dev
-    console.log(`[OTP] ${dto.phone_number}: ${otp}`);
+    // 4. Mock OTP: log to console + return in response (dev only)
+    const isDev = process.env.NODE_ENV !== 'production';
+    if (isDev) {
+      console.log(`[OTP] ${dto.phone_number}: ${otp}`);
+    }
 
     return {
       message: 'Registration successful. Check your phone for the OTP code.',
       national_id: dto.national_id,
-      __dev_otp: otp,
+      ...(isDev && { __dev_otp: otp }),
     };
   }
 
@@ -184,11 +187,14 @@ export class AuthService {
       data: { otp_code, otp_expires_at, otp_attempts: 0 },
     });
 
-    console.log(`[OTP] ${user.phone_number}: ${otp}`);
+    const isDev = process.env.NODE_ENV !== 'production';
+    if (isDev) {
+      console.log(`[OTP] ${user.phone_number}: ${otp}`);
+    }
 
     return {
       message: 'A new OTP has been sent to your phone.',
-      __dev_otp: otp,
+      ...(isDev && { __dev_otp: otp }),
     };
   }
 

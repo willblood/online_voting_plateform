@@ -11,14 +11,15 @@ import { CastVoteDto } from './dto/cast-vote.dto.js';
 
 function encryptVote(payload: string): string {
   const key = process.env.VOTE_ENCRYPTION_KEY;
-  if (!key || key.length < 32) {
-    // Fallback for dev — log warning but don't crash
-    console.warn('[VOTE] VOTE_ENCRYPTION_KEY not set — storing plain text vote (DEV ONLY)');
-    return Buffer.from(payload).toString('base64');
+  const keyBuffer = key ? Buffer.from(key, 'hex') : null;
+  if (!keyBuffer || keyBuffer.length !== 32) {
+    throw new Error(
+      'VOTE_ENCRYPTION_KEY must be set to a 64-character hex string (32 bytes) for AES-256-CBC',
+    );
   }
 
   const iv = crypto.randomBytes(16);
-  const cipher = crypto.createCipheriv('aes-256-cbc', Buffer.from(key, 'hex'), iv);
+  const cipher = crypto.createCipheriv('aes-256-cbc', keyBuffer, iv);
   const encrypted = Buffer.concat([cipher.update(payload, 'utf8'), cipher.final()]);
   return iv.toString('hex') + ':' + encrypted.toString('hex');
 }

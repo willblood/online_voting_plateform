@@ -292,13 +292,17 @@ export class ElectionsService {
 
   // ── GET /elections/:id/results ────────────────────────────────────────
 
-  async getResults(id: string) {
+  async getResults(id: string, callerRole: string) {
     const election = await this.prisma.election.findUnique({
       where: { id },
       select: { id: true, title: true, status: true, geographic_scope: true },
     });
 
     if (!election) throw new NotFoundException('Election not found');
+
+    if (election.status !== 'PUBLIE' && callerRole !== 'ADMIN') {
+      throw new ForbiddenException('Results are not yet published');
+    }
 
     const results = await this.prisma.electionResult.findMany({
       where: { election_id: id },
