@@ -1,18 +1,18 @@
 import { useState } from "react";
-import { useNavigate } from "react-router";
+import { Link, useNavigate } from "react-router";
 
 interface Props {
   user: { email: string; role: string };
 }
 
 const navItems = [
-  { icon: "dashboard", label: "Dashboard", active: true },
-  { icon: "how_to_vote", label: "Voter" },
-  { icon: "analytics", label: "Résultats" },
-  { icon: "calendar_today", label: "Calendrier" },
-  { icon: "person", label: "Mon profil" },
-  { icon: "menu_book", label: "Guide électoral" },
-  { icon: "settings", label: "Settings" },
+  { icon: "dashboard", label: "Dashboard", href: "/dashboard", active: true },
+  { icon: "groups", label: "Électeurs", href: "/admin/voters", active: false },
+  { icon: "analytics", label: "Résultats", href: "#", active: false },
+  { icon: "calendar_today", label: "Calendrier", href: "#", active: false },
+  { icon: "person", label: "Mon profil", href: "#", active: false },
+  { icon: "menu_book", label: "Guide électoral", href: "#", active: false },
+  { icon: "settings", label: "Settings", href: "#", active: false },
 ];
 
 const elections = [
@@ -108,9 +108,9 @@ export default function AdminDashboard({ user }: Props) {
         {/* Nav */}
         <nav style={{ flex: 1 }}>
           {navItems.map((item) => (
-            <a
+            <Link
               key={item.label}
-              href="#"
+              to={item.href}
               style={{
                 display: "flex",
                 alignItems: "center",
@@ -149,7 +149,7 @@ export default function AdminDashboard({ user }: Props) {
                 {item.icon}
               </span>
               <span>{item.label}</span>
-            </a>
+            </Link>
           ))}
         </nav>
 

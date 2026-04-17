@@ -1,9 +1,10 @@
-import { IsEmail, IsNotEmpty, IsString, MinLength } from 'class-validator';
+import { IsNotEmpty, IsString, MinLength } from 'class-validator';
 
 export class LoginDto {
-  @IsEmail()
+  /** Accepts a national ID (e.g. CI0012345678) or an email address */
+  @IsString()
   @IsNotEmpty()
-  email: string;
+  identifier: string;
 
   @IsString()
   @IsNotEmpty()
