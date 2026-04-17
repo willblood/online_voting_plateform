@@ -13,15 +13,25 @@ export default function Dashboard() {
   const [user, setUser] = useState<VotiUser | null>(null);
 
   useEffect(() => {
-    const raw = localStorage.getItem("voti_user");
-    // support legacy key from previous implementation
-    const rawLegacy = localStorage.getItem("agora_user");
-    const source = raw ?? rawLegacy;
-    if (!source) {
+    const raw = localStorage.getItem("voti_user") ?? localStorage.getItem("agora_user");
+    if (!raw) {
       navigate("/login");
       return;
     }
-    setUser(JSON.parse(source));
+    try {
+      const parsed = JSON.parse(raw);
+      if (parsed && typeof parsed.email === "string" && typeof parsed.role === "string") {
+        setUser(parsed as VotiUser);
+      } else {
+        localStorage.removeItem("voti_user");
+        localStorage.removeItem("agora_user");
+        navigate("/login");
+      }
+    } catch {
+      localStorage.removeItem("voti_user");
+      localStorage.removeItem("agora_user");
+      navigate("/login");
+    }
   }, [navigate]);
 
   if (!user) return null;

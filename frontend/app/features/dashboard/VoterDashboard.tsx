@@ -47,10 +47,11 @@ export default function VoterDashboard({ user }: Props) {
     navigate("/login");
   }
 
+  // TODO: wire to PATCH /users/me profile endpoint once available
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    setSaved(true);
-    setTimeout(() => setSaved(false), 3000);
+    // Stub — no API call yet; do not show success banner to avoid misleading the user
+    console.warn('[VoterDashboard] Profile save is not yet implemented');
   }
 
   return (
