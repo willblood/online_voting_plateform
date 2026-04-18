@@ -11,6 +11,7 @@ export default function AdminPartiesRoute() {
     if (!raw) { navigate("/login"); return; }
     try {
       const parsed = JSON.parse(raw) as { email: string; role: string };
+      if (typeof parsed.email !== "string" || !parsed.email) { navigate("/login"); return; }
       if (parsed.role !== "ADMIN") { navigate("/dashboard"); return; }
       setUser(parsed);
     } catch {

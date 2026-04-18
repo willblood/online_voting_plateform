@@ -89,11 +89,24 @@ function CreateElectionModal({ onClose, onSuccess }: CreateElectionModalProps) {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError("");
+
+    const start = new Date(form.start_time);
+    const end = new Date(form.end_time);
+    if (isNaN(start.getTime()) || isNaN(end.getTime())) {
+      setError("Dates invalides.");
+      return;
+    }
+    if (end <= start) {
+      setError("La date de fin doit être postérieure à la date de début.");
+      return;
+    }
+
     setLoading(true);
     try {
       const body: Record<string, unknown> = {
         title: form.title.trim(), type: form.type, description: form.description.trim() || undefined,
-        geographic_scope: form.geographic_scope, start_time: form.start_time, end_time: form.end_time,
+        geographic_scope: form.geographic_scope,
+        start_time: start.toISOString(), end_time: end.toISOString(),
         round: parseInt(form.round, 10) || 1,
       };
       if (form.geographic_scope === "REGIONAL" && form.scope_region_id) body.scope_region_id = form.scope_region_id;
@@ -233,16 +246,20 @@ export default function AdminElectionManagement({ user }: Props) {
   const location = useLocation();
   const [elections, setElections] = useState<Election[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState("");
   const [showCreate, setShowCreate] = useState(false);
   const [toast, setToast] = useState("");
   const [advancing, setAdvancing] = useState<string | null>(null);
 
   const load = useCallback(async () => {
     setLoading(true);
+    setLoadError("");
     try {
       const res = await fetch(`${API}/elections`, { headers: authHeaders() });
-      if (!res.ok) throw new Error();
+      if (!res.ok) throw new Error("Impossible de charger les élections.");
       setElections(await res.json());
+    } catch (err) {
+      setLoadError(err instanceof Error ? err.message : "Erreur lors du chargement");
     } finally {
       setLoading(false);
     }
@@ -345,6 +362,8 @@ export default function AdminElectionManagement({ user }: Props) {
 
             {loading ? (
               <div style={{ padding: "4rem", textAlign: "center", color: "#535f74" }}>Chargement…</div>
+            ) : loadError ? (
+              <div style={{ padding: "2rem", color: "#ba1a1a", background: "#ffdad6", margin: "1.5rem", borderRadius: "12px", fontWeight: 600 }}>{loadError}</div>
             ) : elections.length === 0 ? (
               <div style={{ padding: "4rem", textAlign: "center", color: "#535f74" }}>
                 <span className="material-symbols-outlined" style={{ fontSize: "48px", display: "block", marginBottom: "1rem", color: "#ebe8e3" }}>ballot</span>

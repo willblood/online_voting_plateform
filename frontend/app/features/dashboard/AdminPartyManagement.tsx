@@ -131,6 +131,7 @@ export default function AdminPartyManagement({ user }: Props) {
   const location = useLocation();
   const [parties, setParties] = useState<Party[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState("");
   const [showCreate, setShowCreate] = useState(false);
   const [toast, setToast] = useState("");
   const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
@@ -138,9 +139,13 @@ export default function AdminPartyManagement({ user }: Props) {
 
   const load = useCallback(async () => {
     setLoading(true);
+    setLoadError("");
     try {
       const res = await fetch(`${API}/parties`);
-      if (res.ok) setParties(await res.json());
+      if (!res.ok) throw new Error("Impossible de charger les partis.");
+      setParties(await res.json());
+    } catch (err) {
+      setLoadError(err instanceof Error ? err.message : "Erreur lors du chargement");
     } finally {
       setLoading(false);
     }
@@ -219,6 +224,9 @@ export default function AdminPartyManagement({ user }: Props) {
         {/* Table */}
         <section style={{ position: "relative", zIndex: 10 }}>
           <div style={{ background: "#ffffff", borderRadius: "24px", boxShadow: "0 12px 32px rgba(10,22,40,0.06)", overflow: "hidden" }}>
+            {loadError && (
+              <div style={{ padding: "1rem 1.5rem", background: "#ffdad6", color: "#ba1a1a", fontWeight: 600, margin: "1.5rem", borderRadius: "12px" }}>{loadError}</div>
+            )}
             {loading ? (
               <div style={{ padding: "4rem", textAlign: "center", color: "#535f74" }}>Chargement…</div>
             ) : parties.length === 0 ? (

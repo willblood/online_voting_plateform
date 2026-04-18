@@ -185,19 +185,24 @@ export default function AdminCandidateManagement({ user, electionId }: Props) {
   const [election, setElection] = useState<ElectionDetail | null>(null);
   const [parties, setParties] = useState<Party[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState("");
   const [showAdd, setShowAdd] = useState(false);
   const [toast, setToast] = useState("");
   const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
 
   const load = useCallback(async () => {
     setLoading(true);
+    setLoadError("");
     try {
       const [elRes, partyRes] = await Promise.all([
         fetch(`${API}/elections/${electionId}`, { headers: authHeaders() }),
         fetch(`${API}/parties`),
       ]);
-      if (elRes.ok) setElection(await elRes.json());
+      if (!elRes.ok) throw new Error("Impossible de charger les détails de l'élection.");
+      setElection(await elRes.json());
       if (partyRes.ok) setParties(await partyRes.json());
+    } catch (err) {
+      setLoadError(err instanceof Error ? err.message : "Erreur lors du chargement");
     } finally {
       setLoading(false);
     }
@@ -286,6 +291,9 @@ export default function AdminCandidateManagement({ user, electionId }: Props) {
         )}
 
         {/* Candidates grid */}
+        {loadError && (
+          <div style={{ padding: "1rem 1.5rem", background: "#ffdad6", borderRadius: "16px", color: "#ba1a1a", fontWeight: 600, marginBottom: "1.5rem" }}>{loadError}</div>
+        )}
         {loading ? (
           <div style={{ textAlign: "center", padding: "4rem", color: "#535f74" }}>Chargement…</div>
         ) : election?.candidates.length === 0 ? (

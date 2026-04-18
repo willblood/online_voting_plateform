@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useLocation } from "react-router";
+import { useLocation, useNavigate } from "react-router";
 import VoterSidebar from "./VoterSidebar.js";
 
 interface Props {
@@ -145,7 +145,7 @@ export default function VoterElections({ user }: Props) {
                 onClick={() => setStatusFilter(s)}
                 style={{ padding: "12px 20px", border: "none", borderRadius: "14px", fontFamily: "Manrope, sans-serif", fontWeight: 700, fontSize: "0.8rem", cursor: "pointer", background: statusFilter === s ? "#1c1c19" : "#ffffff", color: statusFilter === s ? "#fcf9f4" : "#535f74", boxShadow: statusFilter === s ? "none" : "0 2px 8px rgba(0,0,0,0.04)" }}
               >
-                {s === "ALL" ? "Toutes" : s === "EN_COURS" ? "En cours" : "Ouvertes"}
+                {s === "ALL" ? "Toutes" : s === "EN_COURS" ? "En cours" : "À venir"}
               </button>
             ))}
           </div>
@@ -175,6 +175,7 @@ export default function VoterElections({ user }: Props) {
 }
 
 function ElectionCard({ el }: { el: ElectionItem }) {
+  const navigate = useNavigate();
   const statusMeta = STATUS_META[el.status];
 
   return (
@@ -234,6 +235,7 @@ function ElectionCard({ el }: { el: ElectionItem }) {
           </div>
         ) : el.can_vote ? (
           <button
+            onClick={() => navigate(`/elections/${el.id}/vote`)}
             style={{ width: "100%", display: "flex", alignItems: "center", justifyContent: "center", gap: "8px", padding: "12px", background: "#f77f00", border: "none", borderRadius: "12px", color: "#ffffff", fontFamily: "Manrope, sans-serif", fontWeight: 700, fontSize: "0.875rem", cursor: "pointer", boxShadow: "0 4px 12px rgba(247,127,0,0.3)" }}
           >
             <span className="material-symbols-outlined" style={{ fontSize: "18px" }}>how_to_vote</span>

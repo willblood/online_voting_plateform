@@ -1,17 +1,65 @@
-import { useLocation } from "react-router";
+import { useEffect, useState } from "react";
+import { Link, useLocation } from "react-router";
 import VoterSidebar from "./VoterSidebar.js";
 
 interface Props {
   user: { email: string; role: string; first_name?: string; last_name?: string };
 }
 
+interface ElectionItem {
+  id: string;
+  title: string;
+  type: string;
+  status: string;
+  start_time: string;
+  end_time: string;
+  can_vote: boolean;
+  already_voted: boolean;
+}
+
+const TYPE_LABELS: Record<string, string> = {
+  PRESIDENTIELLE: "Présidentielle",
+  LEGISLATIVES: "Législatives",
+  REGIONALES: "Régionales",
+  MUNICIPALES: "Municipales",
+  REFERENDUM: "Référendum",
+};
+
+const STATUS_META: Record<string, { label: string; bg: string; color: string }> = {
+  OUVERT:   { label: "À venir",   bg: "#fff3cd", color: "#7a5c00" },
+  EN_COURS: { label: "En cours",  bg: "#80fc98", color: "#007432" },
+};
+
+const API = import.meta.env.VITE_API_URL ?? "http://localhost:3000";
+
+function fmtDate(iso: string) {
+  return new Date(iso).toLocaleDateString("fr-FR", { day: "2-digit", month: "short", year: "numeric" });
+}
+
 export default function VoterDashboard({ user }: Props) {
   const location = useLocation();
+  const [elections, setElections] = useState<ElectionItem[]>([]);
+  const [electionsLoading, setElectionsLoading] = useState(true);
 
   const displayName =
     user.first_name && user.last_name
       ? `${user.first_name} ${user.last_name}`
       : user.email.split("@")[0];
+
+  useEffect(() => {
+    const token = localStorage.getItem("voti_token") ?? "";
+    fetch(`${API}/elections`, { headers: { Authorization: `Bearer ${token}` } })
+      .then(r => r.ok ? r.json() : [])
+      .then((data: ElectionItem[]) => {
+        setElections(data.filter(e => e.status === "EN_COURS" || e.status === "OUVERT"));
+      })
+      .catch(() => {})
+      .finally(() => setElectionsLoading(false));
+  }, []);
+
+  const activeCount = elections.filter(e => e.status === "EN_COURS").length;
+  const upcomingCount = elections.filter(e => e.status === "OUVERT").length;
+  const previewElections = elections.slice(0, 3);
 
   return (
     <div style={{ background: "#fcf9f4", minHeight: "100vh", fontFamily: "Manrope, sans-serif", color: "#1c1c19" }}>
@@ -55,9 +103,9 @@ export default function VoterDashboard({ user }: Props) {
         {/* Info cards */}
         <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "1.5rem", marginBottom: "2rem", position: "relative", zIndex: 10 }}>
           {[
-            { icon: "how_to_vote", label: "Élections à venir", value: "—", bg: "#fff7ed", iconColor: "#954a00", href: "/elections" },
-            { icon: "location_on", label: "Bureau de vote", value: "Voir profil", bg: "#f0fdf4", iconColor: "#006e2e", href: "#" },
-            { icon: "calendar_today", label: "Prochain scrutin", value: "—", bg: "#eff6ff", iconColor: "#1d4ed8", href: "#" },
+            { icon: "how_to_vote", label: "En cours", value: electionsLoading ? "…" : String(activeCount), bg: "#f0fdf4", iconColor: "#006e2e" },
+            { icon: "schedule", label: "À venir", value: electionsLoading ? "…" : String(upcomingCount), bg: "#fff7ed", iconColor: "#954a00" },
+            { icon: "ballot", label: "Total disponibles", value: electionsLoading ? "…" : String(elections.length), bg: "#eff6ff", iconColor: "#1d4ed8" },
           ].map((card) => (
             <div key={card.label} style={{ background: "#ffffff", borderRadius: "20px", padding: "1.5rem", boxShadow: "0 4px 16px rgba(10,22,40,0.05)", display: "flex", alignItems: "center", gap: "1rem" }}>
               <div style={{ width: "52px", height: "52px", borderRadius: "14px", background: card.bg, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
@@ -65,30 +113,76 @@ export default function VoterDashboard({ user }: Props) {
               </div>
               <div>
                 <p style={{ fontSize: "0.65rem", fontWeight: 700, color: "#535f74", textTransform: "uppercase", letterSpacing: "0.08em", margin: "0 0 4px" }}>{card.label}</p>
-                <p style={{ fontFamily: "Plus Jakarta Sans, sans-serif", fontSize: "1.25rem", fontWeight: 800, color: "#1c1c19", margin: 0 }}>{card.value}</p>
+                <p style={{ fontFamily: "Plus Jakarta Sans, sans-serif", fontSize: "1.75rem", fontWeight: 800, color: "#1c1c19", margin: 0, lineHeight: 1 }}>{card.value}</p>
               </div>
             </div>
           ))}
         </div>
 
-        {/* CTA to elections */}
-        <div style={{ background: "#ffffff", borderRadius: "24px", boxShadow: "0 12px 32px rgba(10,22,40,0.06)", padding: "3rem", textAlign: "center", position: "relative", zIndex: 10 }}>
-          <div style={{ width: "72px", height: "72px", borderRadius: "50%", background: "linear-gradient(135deg, #006e2e, #80fc98)", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 1.5rem" }}>
-            <span className="material-symbols-outlined" style={{ fontSize: "36px", color: "#fff" }}>ballot</span>
+        {/* Elections preview */}
+        <div style={{ background: "#ffffff", borderRadius: "24px", boxShadow: "0 12px 32px rgba(10,22,40,0.06)", overflow: "hidden", position: "relative", zIndex: 10 }}>
+          <div style={{ padding: "1.5rem 2rem", borderBottom: "1px solid #ebe8e3", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+            <h3 style={{ fontFamily: "Plus Jakarta Sans, sans-serif", fontSize: "1.125rem", fontWeight: 700, color: "#1c1c19", margin: 0 }}>
+              Mes élections disponibles
+            </h3>
+            <Link to="/elections" style={{ display: "inline-flex", alignItems: "center", gap: "6px", fontSize: "0.8rem", fontWeight: 700, color: "#f77f00", textDecoration: "none" }}>
+              Voir toutes
+              <span className="material-symbols-outlined" style={{ fontSize: "16px" }}>arrow_forward</span>
+            </Link>
           </div>
-          <h3 style={{ fontFamily: "Plus Jakarta Sans, sans-serif", fontSize: "1.5rem", fontWeight: 800, color: "#1c1c19", margin: "0 0 0.75rem" }}>
-            Consultez vos élections
-          </h3>
-          <p style={{ color: "#535f74", maxWidth: "420px", margin: "0 auto 1.5rem", lineHeight: 1.7 }}>
-            Les élections disponibles pour votre région sont accessibles depuis votre espace Mes Élections.
-          </p>
-          <a
-            href="/elections"
-            style={{ display: "inline-flex", alignItems: "center", gap: "8px", padding: "12px 28px", background: "#f77f00", borderRadius: "9999px", color: "#ffffff", fontFamily: "Manrope, sans-serif", fontWeight: 700, fontSize: "0.875rem", textDecoration: "none", boxShadow: "0 8px 24px rgba(247,127,0,0.25)" }}
-          >
-            <span className="material-symbols-outlined" style={{ fontSize: "20px" }}>how_to_vote</span>
-            Mes Élections
-          </a>
+
+          {electionsLoading ? (
+            <div style={{ padding: "3rem", textAlign: "center", color: "#535f74" }}>Chargement…</div>
+          ) : previewElections.length === 0 ? (
+            <div style={{ padding: "3rem", textAlign: "center" }}>
+              <span className="material-symbols-outlined" style={{ fontSize: "40px", display: "block", marginBottom: "0.75rem", color: "#ebe8e3" }}>ballot</span>
+              <p style={{ color: "#535f74", fontWeight: 600, margin: 0 }}>Aucune élection disponible pour le moment.</p>
+            </div>
+          ) : (
+            <div>
+              {previewElections.map((el, idx) => {
+                const meta = STATUS_META[el.status];
+                return (
+                  <div
+                    key={el.id}
+                    style={{ padding: "1.25rem 2rem", borderBottom: idx < previewElections.length - 1 ? "1px solid #f6f3ee" : "none", display: "flex", alignItems: "center", gap: "1rem" }}
+                  >
+                    <div style={{ width: "44px", height: "44px", borderRadius: "12px", background: "#fff7ed", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                      <span className="material-symbols-outlined" style={{ fontSize: "22px", color: "#954a00" }}>how_to_vote</span>
+                    </div>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <p style={{ fontFamily: "Plus Jakarta Sans, sans-serif", fontWeight: 700, color: "#1c1c19", margin: "0 0 2px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                        {el.title}
+                      </p>
+                      <p style={{ fontSize: "0.775rem", color: "#535f74", margin: 0, fontWeight: 500 }}>
+                        {TYPE_LABELS[el.type] ?? el.type} · {fmtDate(el.start_time)} → {fmtDate(el.end_time)}
+                      </p>
+                    </div>
+                    <div style={{ display: "flex", alignItems: "center", gap: "10px", flexShrink: 0 }}>
+                      {meta && (
+                        <span style={{ padding: "3px 10px", borderRadius: "9999px", fontSize: "0.7rem", fontWeight: 700, background: meta.bg, color: meta.color }}>
+                          {meta.label}
+                        </span>
+                      )}
+                      {el.already_voted ? (
+                        <span style={{ display: "inline-flex", alignItems: "center", gap: "4px", fontSize: "0.75rem", fontWeight: 700, color: "#006e2e" }}>
+                          <span className="material-symbols-outlined" style={{ fontSize: "16px" }}>verified</span>
+                          Voté
+                        </span>
+                      ) : el.can_vote ? (
+                        <Link
+                          to={`/elections/${el.id}/vote`}
+                          style={{ padding: "6px 14px", background: "#f77f00", borderRadius: "9999px", color: "#fff", fontFamily: "Manrope, sans-serif", fontWeight: 700, fontSize: "0.75rem", textDecoration: "none" }}
+                        >
+                          Voter
+                        </Link>
+                      ) : null}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
         </div>
       </main>
     </div>

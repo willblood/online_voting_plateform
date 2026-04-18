@@ -18,7 +18,8 @@ export default function ElectionsRoute() {
     if (!raw) { navigate("/login"); return; }
     try {
       const parsed = JSON.parse(raw) as VotiUser;
-      if (!parsed?.email) { navigate("/login"); return; }
+      if (typeof parsed?.email !== "string" || !parsed.email) { navigate("/login"); return; }
+      if (parsed.role !== "VOTER") { navigate("/dashboard"); return; }
       setUser(parsed);
     } catch {
       navigate("/login");

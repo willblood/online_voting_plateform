@@ -44,17 +44,19 @@ export class PartiesService {
   }
 
   async remove(id: string) {
-    const party = await this.prisma.politicalParty.findUnique({
-      where: { id },
-      include: { _count: { select: { candidates: true } } },
+    await this.prisma.$transaction(async (tx) => {
+      const party = await tx.politicalParty.findUnique({
+        where: { id },
+        include: { _count: { select: { candidates: true } } },
+      });
+
+      if (!party) throw new NotFoundException('Party not found');
+
+      if (party._count.candidates > 0) {
+        throw new BadRequestException('Cannot delete a party that has candidates');
+      }
+
+      await tx.politicalParty.delete({ where: { id } });
     });
-
-    if (!party) throw new NotFoundException('Party not found');
-
-    if (party._count.candidates > 0) {
-      throw new BadRequestException('Cannot delete a party that has candidates');
-    }
-
-    await this.prisma.politicalParty.delete({ where: { id } });
   }
 }
