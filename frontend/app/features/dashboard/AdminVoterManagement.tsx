@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from "react";
-import { Link, useNavigate } from "react-router";
+import { Link, useLocation } from "react-router";
+import AdminSidebar from "./AdminSidebar.js";
 
 interface Props {
   user: { email: string; role: string };
@@ -35,16 +36,6 @@ interface Voter {
   bureau_de_vote_id?: string;
   created_at: string;
 }
-
-const navItems = [
-  { icon: "dashboard", label: "Dashboard", href: "/dashboard", active: false },
-  { icon: "how_to_vote", label: "Électeurs", href: "/admin/voters", active: true },
-  { icon: "analytics", label: "Résultats", href: "#", active: false },
-  { icon: "calendar_today", label: "Calendrier", href: "#", active: false },
-  { icon: "person", label: "Mon profil", href: "#", active: false },
-  { icon: "menu_book", label: "Guide électoral", href: "#", active: false },
-  { icon: "settings", label: "Settings", href: "#", active: false },
-];
 
 const STATUS_LABELS: Record<string, string> = {
   ACTIVE: "Actif",
@@ -1277,7 +1268,7 @@ function VoterRow({ voter, onEdit }: { voter: Voter; onEdit: (v: Voter) => void 
 
 // ── Main Component ──────────────────────────────────────────────────────────
 export default function AdminVoterManagement({ user }: Props) {
-  const navigate = useNavigate();
+  const location = useLocation();
   const [voters, setVoters] = useState<Voter[]>([]);
   const [loading, setLoading] = useState(true);
   const [fetchError, setFetchError] = useState("");
@@ -1310,14 +1301,6 @@ export default function AdminVoterManagement({ user }: Props) {
 
   useEffect(() => { fetchVoters(); }, [fetchVoters]);
 
-  function logout() {
-    localStorage.removeItem("voti_token");
-    localStorage.removeItem("voti_user");
-    localStorage.removeItem("agora_token");
-    localStorage.removeItem("agora_user");
-    navigate("/login");
-  }
-
   function showToast(msg: string) {
     setToast(msg);
     setTimeout(() => setToast(""), 4000);
@@ -1339,82 +1322,7 @@ export default function AdminVoterManagement({ user }: Props) {
 
   return (
     <div style={{ background: "#fcf9f4", minHeight: "100vh", fontFamily: "Manrope, sans-serif", color: "#1c1c19" }}>
-      {/* ── Sidebar ── */}
-      <aside
-        style={{
-          position: "fixed",
-          left: 0,
-          top: 0,
-          width: "256px",
-          height: "100vh",
-          background: "#020617",
-          display: "flex",
-          flexDirection: "column",
-          padding: "2rem 0",
-          zIndex: 40,
-          boxShadow: "4px 0 24px rgba(0,0,0,0.3)",
-        }}
-      >
-        <div style={{ padding: "0 1.5rem", marginBottom: "2.5rem" }}>
-          <h1 style={{ fontFamily: "Plus Jakarta Sans, sans-serif", fontSize: "1.25rem", fontWeight: 800, color: "#ffffff", letterSpacing: "-0.02em", margin: 0 }}>
-            VOTI CI
-          </h1>
-          <p style={{ fontSize: "0.7rem", color: "#64748b", fontWeight: 600, margin: "4px 0 0", letterSpacing: "0.05em" }}>
-            Plateforme Électorale
-          </p>
-        </div>
-
-        <nav style={{ flex: 1 }}>
-          {navItems.map((item) => (
-            <Link
-              key={item.label}
-              to={item.href}
-              style={{
-                display: "flex",
-                alignItems: "center",
-                gap: "12px",
-                padding: "12px 24px",
-                fontFamily: "Plus Jakarta Sans, sans-serif",
-                fontSize: "0.875rem",
-                fontWeight: 600,
-                textDecoration: "none",
-                transition: "background 0.15s, color 0.15s",
-                ...(item.active
-                  ? { background: "rgba(249,115,22,0.1)", color: "#f97316", borderRight: "4px solid #f97316" }
-                  : { color: "#94a3b8", borderRight: "4px solid transparent" }),
-              }}
-              onMouseEnter={(e) => { if (!item.active) { (e.currentTarget as HTMLElement).style.background = "#0f172a"; (e.currentTarget as HTMLElement).style.color = "#ffffff"; } }}
-              onMouseLeave={(e) => { if (!item.active) { (e.currentTarget as HTMLElement).style.background = "transparent"; (e.currentTarget as HTMLElement).style.color = "#94a3b8"; } }}
-            >
-              <span className="material-symbols-outlined" style={{ fontSize: "22px" }}>{item.icon}</span>
-              <span>{item.label}</span>
-            </Link>
-          ))}
-        </nav>
-
-        <div style={{ padding: "0 1.5rem" }}>
-          <div style={{ display: "flex", alignItems: "center", gap: "12px", padding: "12px", background: "#0f172a", borderRadius: "12px" }}>
-            <div style={{ width: "40px", height: "40px", borderRadius: "50%", background: "#954a00", border: "2px solid #1e293b", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, color: "#ffffff", fontFamily: "Plus Jakarta Sans, sans-serif", fontWeight: 700, fontSize: "1rem" }}>
-              {user.email[0].toUpperCase()}
-            </div>
-            <div style={{ overflow: "hidden", flex: 1 }}>
-              <p style={{ color: "#ffffff", fontSize: "0.875rem", fontWeight: 700, margin: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-                {user.email.split("@")[0]}
-              </p>
-              <p style={{ color: "#64748b", fontSize: "0.7rem", margin: 0 }}>Administrateur</p>
-            </div>
-            <button
-              onClick={logout}
-              title="Se déconnecter"
-              style={{ background: "none", border: "none", cursor: "pointer", color: "#475569", display: "flex", padding: "4px", transition: "color 0.15s" }}
-              onMouseEnter={(e) => ((e.currentTarget as HTMLElement).style.color = "#f97316")}
-              onMouseLeave={(e) => ((e.currentTarget as HTMLElement).style.color = "#475569")}
-            >
-              <span className="material-symbols-outlined" style={{ fontSize: "18px" }}>logout</span>
-            </button>
-          </div>
-        </div>
-      </aside>
+      <AdminSidebar user={user} activePath={location.pathname} />
 
       {/* ── Main ── */}
       <main style={{ marginLeft: "256px", padding: "2rem", minHeight: "100vh", position: "relative" }}>
