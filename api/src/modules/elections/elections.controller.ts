@@ -40,6 +40,13 @@ export class ElectionsController {
     return this.electionsService.findAll(req.user.id, req.user.role);
   }
 
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('ADMIN')
+  @Get('stats')
+  getStats() {
+    return this.electionsService.getStats();
+  }
+
   @UseGuards(JwtAuthGuard)
   @Get(':id')
   findOne(@Param('id') id: string, @Request() req: AuthRequest) {
