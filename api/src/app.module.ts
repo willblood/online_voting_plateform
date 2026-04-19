@@ -7,9 +7,10 @@ import { UsersModule } from './modules/users/users.module.js';
 import { ElectionsModule } from './modules/elections/elections.module.js';
 import { VotingModule } from './modules/voting/voting.module.js';
 import { GeographyModule } from './modules/geography/geography.module.js';
+import { PartiesModule } from './modules/parties/parties.module.js';
 
 @Module({
-  imports: [PrismaModule, AuthModule, UsersModule, ElectionsModule, VotingModule, GeographyModule],
+  imports: [PrismaModule, AuthModule, UsersModule, ElectionsModule, VotingModule, GeographyModule, PartiesModule],
   controllers: [AppController],
   providers: [AppService],
 })
