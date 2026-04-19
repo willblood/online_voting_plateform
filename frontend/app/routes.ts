@@ -9,4 +9,5 @@ export default [
   route("admin/elections/:id/candidates", "routes/admin/election-candidates.tsx"),
   route("admin/parties", "routes/admin/parties.tsx"),
   route("elections", "routes/elections.tsx"),
+  route("elections/:id/vote", "routes/election-vote.tsx"),
 ] satisfies RouteConfig;
