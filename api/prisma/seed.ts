@@ -1,4 +1,5 @@
 import 'dotenv/config';
+import * as crypto from 'crypto';
 import { PrismaPg } from '@prisma/adapter-pg';
 import { PrismaClient } from '../generated/prisma/client.js';
 import * as bcrypt from 'bcrypt';
@@ -785,100 +786,465 @@ async function main() {
   });
 
   // ══════════════════════════════════════════════════════════════════════════
-  //  ELECTIONS & CANDIDATES
+  //  ELECTIONS, CANDIDATES, USERS & VOTES
   // ══════════════════════════════════════════════════════════════════════════
 
   const now = new Date();
-  const votingStart = new Date(now.getTime() - 2 * 60 * 60 * 1000);
-  const votingEnd   = new Date(now.getTime() + 10 * 60 * 60 * 1000);
 
-  async function upsertElection(title: string, data: object) {
+  const dAgo  = (n: number) => new Date(now.getTime() - n * 86_400_000);
+  const dFwd  = (n: number) => new Date(now.getTime() + n * 86_400_000);
+  const hAgo  = (n: number) => new Date(now.getTime() - n * 3_600_000);
+  const hFwd  = (n: number) => new Date(now.getTime() + n * 3_600_000);
+
+  // Status is always derived from the time window — re-seeding corrects stale records
+  const derivedStatus = (start: Date, end: Date): string => {
+    if (now < start) return 'OUVERT';
+    if (now > end)   return 'CLOS';
+    return 'EN_COURS';
+  };
+
+  async function upsertElection(title: string, data: Record<string, unknown>) {
     const existing = await prisma.election.findFirst({ where: { title } });
-    if (existing) return existing;
-    return prisma.election.create({ data: data as any });
+    if (existing) return prisma.election.update({ where: { id: existing.id }, data });
+    return prisma.election.create({ data: { title, ...data } as any });
   }
-  async function upsertCandidate(election_id: string, first_name: string, last_name: string, data: object) {
+
+  async function upsertCandidate(
+    election_id: string, first_name: string, last_name: string, data: object,
+  ) {
     const existing = await prisma.candidate.findFirst({ where: { election_id, first_name, last_name } });
     if (existing) return existing;
     return prisma.candidate.create({ data: { election_id, first_name, last_name, ...data } as any });
   }
 
-  const presidentielle = await upsertElection('Élection Présidentielle 2026', {
-    title: 'Élection Présidentielle 2026',
-    type: 'PRESIDENTIELLE', status: 'EN_COURS', geographic_scope: 'NATIONAL',
+  async function seedVote(user_id: string, election_id: string, candidate_id: string) {
+    const exists = await prisma.vote.findUnique({
+      where: { user_id_election_id: { user_id, election_id } },
+    });
+    if (exists) return exists;
+    return prisma.vote.create({
+      data: {
+        user_id, election_id, candidate_id,
+        encrypted_vote: `seed:${Buffer.from(JSON.stringify({ election_id, candidate_id })).toString('base64')}`,
+        receipt_code: crypto.randomUUID(),
+      },
+    });
+  }
+
+  // ══════════════════════════════════════════════════════════════════════════
+  //  ELECTIONS — PUBLIE (ended, results published)
+  // ══════════════════════════════════════════════════════════════════════════
+
+  // 1. Présidentielle 2025 — NATIONAL — ended 120 days ago
+  const pres2025 = await upsertElection('Élection Présidentielle 2025', {
+    type: 'PRESIDENTIELLE', status: 'PUBLIE', geographic_scope: 'NATIONAL',
     description: "Élection du Président de la République de Côte d'Ivoire pour un mandat de 5 ans.",
-    start_time: votingStart, end_time: votingEnd,
+    start_time: dAgo(120), end_time: dAgo(119),
   });
-  await upsertCandidate(presidentielle.id, 'Alassane', 'Ouattara', { party_id: rhdp.id, nationality_verified: true, criminal_record_clear: true, age_verified: true });
-  await upsertCandidate(presidentielle.id, 'Tidjane', 'Thiam',    { party_id: pdci.id, nationality_verified: true, criminal_record_clear: true, age_verified: true });
-  await upsertCandidate(presidentielle.id, 'Laurent', 'Gbagbo',   { party_id: ppaci.id, nationality_verified: true, criminal_record_clear: true, age_verified: true });
-  await upsertCandidate(presidentielle.id, 'Kouadio', 'Konan Bertin', { party_id: independant.id, nationality_verified: true, criminal_record_clear: true, age_verified: true });
+  const p25_ouattara = await upsertCandidate(pres2025.id, 'Alassane', 'Ouattara',     { party_id: rhdp.id,        nationality_verified: true, criminal_record_clear: true, age_verified: true, biography: "Président sortant, ancien Premier Ministre et économiste international." });
+  const p25_thiam    = await upsertCandidate(pres2025.id, 'Tidjane',  'Thiam',        { party_id: pdci.id,        nationality_verified: true, criminal_record_clear: true, age_verified: true, biography: "Ancien PDG de Credit Suisse, candidat du PDCI-RDA." });
+  const p25_gbagbo   = await upsertCandidate(pres2025.id, 'Laurent',  'Gbagbo',       { party_id: ppaci.id,       nationality_verified: true, criminal_record_clear: true, age_verified: true, biography: "Ancien Président de la République, fondateur du PPA-CI." });
+  const p25_kkb      = await upsertCandidate(pres2025.id, 'Kouadio',  'Konan Bertin', { party_id: independant.id, nationality_verified: true, criminal_record_clear: true, age_verified: true, biography: "Candidat indépendant, ancien député." });
+
+  // 2. Référendum Nouvelle Constitution 2025 — NATIONAL — ended 60 days ago
+  const ref2025 = await upsertElection('Référendum Nouvelle Constitution 2025', {
+    type: 'REFERENDUM', status: 'PUBLIE', geographic_scope: 'NATIONAL',
+    description: "Référendum populaire sur l'adoption de la nouvelle Constitution.",
+    start_time: dAgo(60), end_time: dAgo(59),
+  });
+  const ref_oui = await upsertCandidate(ref2025.id, 'OUI', 'Pour la réforme',   { nationality_verified: true, criminal_record_clear: true, age_verified: true });
+  const ref_non = await upsertCandidate(ref2025.id, 'NON', 'Contre la réforme', { nationality_verified: true, criminal_record_clear: true, age_verified: true });
+
+  // ══════════════════════════════════════════════════════════════════════════
+  //  ELECTIONS — CLOS (ended, results pending)
+  // ══════════════════════════════════════════════════════════════════════════
+
+  // 3. Régionales District Abidjan 2026 — REGIONAL — ended 14 days ago
+  const regAbj = await upsertElection('Régionales District Abidjan 2026', {
+    type: 'REGIONALES', status: derivedStatus(dAgo(14), dAgo(13)), geographic_scope: 'REGIONAL',
+    description: "Élections régionales pour le District Autonome d'Abidjan.",
+    start_time: dAgo(14), end_time: dAgo(13),
+    scope_region_id: rAbidjan.id,
+  });
+  const rAbj_diallo  = await upsertCandidate(regAbj.id, 'Ibrahim',   'Diallo',  { party_id: rhdp.id,        nationality_verified: true, criminal_record_clear: true, age_verified: true });
+  const rAbj_lago    = await upsertCandidate(regAbj.id, 'Henriette', 'Lago',    { party_id: pdci.id,        nationality_verified: true, criminal_record_clear: true, age_verified: true });
+  const rAbj_gnamien = await upsertCandidate(regAbj.id, 'Sylvain',   'Gnamien', { party_id: independant.id, nationality_verified: true, criminal_record_clear: true, age_verified: true });
+
+  // 4. Législatives Cocody 2026 — COMMUNAL — ended 5 days ago
+  const legCoc = await upsertElection('Législatives Cocody 2026', {
+    type: 'LEGISLATIVES', status: derivedStatus(dAgo(5), dAgo(4)), geographic_scope: 'COMMUNAL',
+    description: "Élections législatives pour la circonscription de Cocody.",
+    start_time: dAgo(5), end_time: dAgo(4),
+    scope_commune_id: cCocody.id,
+  });
+  const lCoc_kone  = await upsertCandidate(legCoc.id, 'Marie-Josée',   'Koné',  { party_id: rhdp.id,        nationality_verified: true, criminal_record_clear: true, age_verified: true });
+  const lCoc_brou  = await upsertCandidate(legCoc.id, 'Jean-Baptiste', 'Brou',  { party_id: pdci.id,        nationality_verified: true, criminal_record_clear: true, age_verified: true });
+  const lCoc_sylla = await upsertCandidate(legCoc.id, 'Awa',           'Sylla', { party_id: independant.id, nationality_verified: true, criminal_record_clear: true, age_verified: true });
+
+  // 5. Municipales Abobo 2026 — COMMUNAL — ended 3 days ago
+  const munAbo = await upsertElection('Municipales Abobo 2026', {
+    type: 'MUNICIPALES', status: derivedStatus(dAgo(3), dAgo(2)), geographic_scope: 'COMMUNAL',
+    description: "Élections municipales pour la commune d'Abobo.",
+    start_time: dAgo(3), end_time: dAgo(2),
+    scope_commune_id: cAbobo.id,
+  });
+  const mAbo_bamba = await upsertCandidate(munAbo.id, 'Adama',     'Bamba', { party_id: rhdp.id,        nationality_verified: true, criminal_record_clear: true, age_verified: true });
+  const mAbo_toure = await upsertCandidate(munAbo.id, 'Fatoumata', 'Touré', { party_id: ppaci.id,       nationality_verified: true, criminal_record_clear: true, age_verified: true });
+  const mAbo_kone  = await upsertCandidate(munAbo.id, 'Seydou',    'Koné',  { party_id: independant.id, nationality_verified: true, criminal_record_clear: true, age_verified: true });
+
+  // 6. Régionales Gbêkê 2025 — REGIONAL (Bouaké) — ended 30 days ago
+  const regGbeOld = await upsertElection('Régionales Gbêkê 2025', {
+    type: 'REGIONALES', status: derivedStatus(dAgo(30), dAgo(29)), geographic_scope: 'REGIONAL',
+    description: "Élections régionales pour la région du Gbêkê (cycle 2025).",
+    start_time: dAgo(30), end_time: dAgo(29),
+    scope_region_id: rGbeke.id,
+  });
+  const rGbeO_kone     = await upsertCandidate(regGbeOld.id, 'Issouf',    'Koné',      { party_id: rhdp.id,        nationality_verified: true, criminal_record_clear: true, age_verified: true });
+  const rGbeO_coulibaly = await upsertCandidate(regGbeOld.id, 'Dramane',  'Coulibaly', { party_id: pdci.id,        nationality_verified: true, criminal_record_clear: true, age_verified: true });
+  const rGbeO_sanogo   = await upsertCandidate(regGbeOld.id, 'Mariam',    'Sanogo',    { party_id: independant.id, nationality_verified: true, criminal_record_clear: true, age_verified: true });
+
+  // ══════════════════════════════════════════════════════════════════════════
+  //  ELECTIONS — EN_COURS (active now)
+  // ══════════════════════════════════════════════════════════════════════════
+
+  // 7. Élections Législatives Nationales 2026 — NATIONAL — active (−3h → +8h)
+  const legNat = await upsertElection('Élections Législatives Nationales 2026', {
+    type: 'LEGISLATIVES', status: 'EN_COURS', geographic_scope: 'NATIONAL',
+    description: "Renouvellement de l'ensemble des sièges de l'Assemblée Nationale.",
+    start_time: hAgo(3), end_time: hFwd(8),
+  });
+  const lNat_coulibaly = await upsertCandidate(legNat.id, 'Amadou',    'Coulibaly', { party_id: rhdp.id,        nationality_verified: true, criminal_record_clear: true, age_verified: true });
+  const lNat_dosso     = await upsertCandidate(legNat.id, 'Mariam',    'Dosso',     { party_id: pdci.id,        nationality_verified: true, criminal_record_clear: true, age_verified: true });
+  const lNat_bictogo   = await upsertCandidate(legNat.id, 'Adama',     'Bictogo',   { party_id: ppaci.id,       nationality_verified: true, criminal_record_clear: true, age_verified: true });
+  const lNat_soro      = await upsertCandidate(legNat.id, 'Guillaume', 'Soro',      { party_id: independant.id, nationality_verified: true, criminal_record_clear: true, age_verified: true });
+
+  // 8. Régionales Gbêkê 2026 — REGIONAL (Bouaké) — active (−2h → +10h)
+  const regGbe = await upsertElection('Régionales Gbêkê 2026', {
+    type: 'REGIONALES', status: 'EN_COURS', geographic_scope: 'REGIONAL',
+    description: "Élections régionales pour la région du Gbêkê.",
+    start_time: hAgo(2), end_time: hFwd(10),
+    scope_region_id: rGbeke.id,
+  });
+  const rGbe_navigué   = await upsertCandidate(regGbe.id, 'Koné',  'Navigué',   { party_id: rhdp.id,        nationality_verified: true, criminal_record_clear: true, age_verified: true });
+  const rGbe_coulibaly = await upsertCandidate(regGbe.id, 'Yves',  'Coulibaly', { party_id: pdci.id,        nationality_verified: true, criminal_record_clear: true, age_verified: true });
+  const rGbe_sanogo    = await upsertCandidate(regGbe.id, 'Aïssa', 'Sanogo',    { party_id: independant.id, nationality_verified: true, criminal_record_clear: true, age_verified: true });
+
+  // 9. Municipales Yopougon 2026 — COMMUNAL — active (−2h → +10h)
+  const munYop = await upsertElection('Municipales Yopougon 2026', {
+    type: 'MUNICIPALES', status: 'EN_COURS', geographic_scope: 'COMMUNAL',
+    description: "Élections municipales pour la commune de Yopougon.",
+    start_time: hAgo(2), end_time: hFwd(10),
+    scope_commune_id: cYopougon.id,
+  });
+  const mYop_ouattara = await upsertCandidate(munYop.id, 'Gnénéfoly', 'Ouattara', { party_id: rhdp.id,        nationality_verified: true, criminal_record_clear: true, age_verified: true });
+  const mYop_kobenan  = await upsertCandidate(munYop.id, 'Séraphin',  'Kobenan',  { party_id: pdci.id,        nationality_verified: true, criminal_record_clear: true, age_verified: true });
+  const mYop_diallo   = await upsertCandidate(munYop.id, 'Fatou',     'Diallo',   { party_id: ppaci.id,       nationality_verified: true, criminal_record_clear: true, age_verified: true });
+  const mYop_traore   = await upsertCandidate(munYop.id, 'Moussa',    'Traoré',   { party_id: independant.id, nationality_verified: true, criminal_record_clear: true, age_verified: true });
+
+  // 10. Référendum Réforme Électorale 2026 — NATIONAL — active (−1h → +12h)
+  const refElec = await upsertElection('Référendum Réforme Électorale 2026', {
+    type: 'REFERENDUM', status: 'EN_COURS', geographic_scope: 'NATIONAL',
+    description: "Référendum sur la réforme du code électoral et l'introduction du vote électronique.",
+    start_time: hAgo(1), end_time: hFwd(12),
+  });
+  const refE_oui = await upsertCandidate(refElec.id, 'OUI', 'Pour la réforme électorale',   { nationality_verified: true, criminal_record_clear: true, age_verified: true });
+  const refE_non = await upsertCandidate(refElec.id, 'NON', 'Contre la réforme électorale', { nationality_verified: true, criminal_record_clear: true, age_verified: true });
+
+  // ══════════════════════════════════════════════════════════════════════════
+  //  ELECTIONS — OUVERT (upcoming)
+  // ══════════════════════════════════════════════════════════════════════════
+
+  // 11. Municipales Cocody 2026 — COMMUNAL — starts in 2 days
+  const munCoc = await upsertElection('Municipales Cocody 2026', {
+    type: 'MUNICIPALES', status: derivedStatus(dFwd(2), dFwd(3)), geographic_scope: 'COMMUNAL',
+    description: "Élections municipales pour la commune de Cocody.",
+    start_time: dFwd(2), end_time: dFwd(3),
+    scope_commune_id: cCocody.id,
+  });
+  await upsertCandidate(munCoc.id, 'Jean-Marc', 'Yacé',   { party_id: rhdp.id,        nationality_verified: true, criminal_record_clear: true, age_verified: true });
+  await upsertCandidate(munCoc.id, 'Estelle',   'Assi',   { party_id: pdci.id,        nationality_verified: true, criminal_record_clear: true, age_verified: true });
+  await upsertCandidate(munCoc.id, 'Romuald',   'Akpata', { party_id: independant.id, nationality_verified: true, criminal_record_clear: true, age_verified: true });
+
+  // 12. Référendum Réforme Foncière 2026 — NATIONAL — starts in 7 days
+  const refFonc = await upsertElection('Référendum Réforme Foncière 2026', {
+    type: 'REFERENDUM', status: derivedStatus(dFwd(7), dFwd(8)), geographic_scope: 'NATIONAL',
+    description: "Référendum sur la réforme de la politique foncière rurale.",
+    start_time: dFwd(7), end_time: dFwd(8),
+  });
+  await upsertCandidate(refFonc.id, 'OUI', 'Pour la réforme foncière',   { nationality_verified: true, criminal_record_clear: true, age_verified: true });
+  await upsertCandidate(refFonc.id, 'NON', 'Contre la réforme foncière', { nationality_verified: true, criminal_record_clear: true, age_verified: true });
+
+  // 13. Présidentielle 2026 — NATIONAL — starts in 15 days (brouillon → open campaign)
+  const pres2026 = await upsertElection('Élection Présidentielle 2026', {
+    type: 'PRESIDENTIELLE', status: derivedStatus(dFwd(15), dFwd(16)), geographic_scope: 'NATIONAL',
+    description: "Élection du Président de la République — scrutin quinquennal 2026.",
+    start_time: dFwd(15), end_time: dFwd(16),
+  });
+  await upsertCandidate(pres2026.id, 'Alassane', 'Ouattara',     { party_id: rhdp.id,        nationality_verified: true, criminal_record_clear: true, age_verified: true });
+  await upsertCandidate(pres2026.id, 'Tidjane',  'Thiam',        { party_id: pdci.id,        nationality_verified: true, criminal_record_clear: true, age_verified: true });
+  await upsertCandidate(pres2026.id, 'Laurent',  'Gbagbo',       { party_id: ppaci.id,       nationality_verified: true, criminal_record_clear: true, age_verified: true });
+  await upsertCandidate(pres2026.id, 'Kouadio',  'Konan Bertin', { party_id: independant.id, nationality_verified: true, criminal_record_clear: true, age_verified: true });
+
+  console.log('✓ 13 elections and candidates seeded');
 
   // ══════════════════════════════════════════════════════════════════════════
   //  USERS
   // ══════════════════════════════════════════════════════════════════════════
 
+  // Extra bureaux for new communes
+  const bAbobo   = await upsertBureau("Mairie d'Abobo",              cAbobo.id,        "Abobo, Abidjan",   800);
+  const bPlateau = await upsertBureau("Hôtel de Ville du Plateau",   cPlateau.id,      "Plateau, Abidjan", 300);
+  const bYam2    = await upsertBureau("Mairie de Yamoussoukro",      cYamoussoukro.id, "Yamoussoukro",     400);
+
   const adminHash = await bcrypt.hash('Admin@12345', 10);
   const voterHash = await bcrypt.hash('Voter@12345', 10);
 
-  await prisma.user.upsert({
-    where: { email: 'admin@agora.gov' },
-    update: {},
-    create: {
-      national_id: 'ADMIN001', email: 'admin@agora.gov', password_hash: adminHash,
-      role: 'ADMIN', status: 'ACTIVE',
-      first_name: 'Super', last_name: 'Administrateur',
-      date_of_birth: new Date('1980-01-01'), phone_number: '+2250700000000',
-      commune_id: cCocody.id, bureau_de_vote_id: bCocody.id,
-    },
-  });
+  // ── Admin ────────────────────────────────────────────────────────────────
+  await prisma.user.upsert({ where: { email: 'admin@agora.gov' }, update: {}, create: {
+    national_id: 'ADMIN001', email: 'admin@agora.gov', password_hash: adminHash,
+    role: 'ADMIN', status: 'ACTIVE',
+    first_name: 'Super', last_name: 'Administrateur',
+    date_of_birth: new Date('1980-01-01'), phone_number: '+2250700000000',
+    commune_id: cCocody.id, bureau_de_vote_id: bCocody.id,
+  }});
 
-  await prisma.user.upsert({
-    where: { email: 'kouassi@example.com' },
-    update: {},
-    create: {
-      national_id: 'CI0012345678', email: 'kouassi@example.com', password_hash: voterHash,
-      role: 'VOTER', status: 'ACTIVE',
-      first_name: 'Kouassi', last_name: 'Amani',
-      date_of_birth: new Date('1990-04-15'), phone_number: '+2250701234567',
-      commune_id: cCocody.id, bureau_de_vote_id: bCocody.id,
-    },
-  });
+  // ── Voters — Cocody (Abidjan) ────────────────────────────────────────────
+  const uKouassi = await prisma.user.upsert({ where: { email: 'kouassi@example.com' }, update: {}, create: {
+    national_id: 'CI0012345678', email: 'kouassi@example.com', password_hash: voterHash,
+    role: 'VOTER', status: 'ACTIVE',
+    first_name: 'Kouassi', last_name: 'Amani',
+    date_of_birth: new Date('1990-04-15'), phone_number: '+2250701234567',
+    commune_id: cCocody.id, bureau_de_vote_id: bCocody.id,
+  }});
+  const uPierre = await prisma.user.upsert({ where: { email: 'pierre@example.com' }, update: {}, create: {
+    national_id: 'CI0023456789', email: 'pierre@example.com', password_hash: voterHash,
+    role: 'VOTER', status: 'ACTIVE',
+    first_name: 'Pierre', last_name: 'Aké',
+    date_of_birth: new Date('1985-07-20'), phone_number: '+2250701234568',
+    commune_id: cCocody.id, bureau_de_vote_id: bCocody.id,
+  }});
+  const uRachel = await prisma.user.upsert({ where: { email: 'rachel@example.com' }, update: {}, create: {
+    national_id: 'CI0034567890', email: 'rachel@example.com', password_hash: voterHash,
+    role: 'VOTER', status: 'ACTIVE',
+    first_name: 'Rachel', last_name: 'Adjoua',
+    date_of_birth: new Date('1992-03-08'), phone_number: '+2250701234569',
+    commune_id: cCocody.id, bureau_de_vote_id: bCocody.id,
+  }});
 
-  await prisma.user.upsert({
-    where: { email: 'aminata@example.com' },
-    update: {},
-    create: {
-      national_id: 'CI0087654321', email: 'aminata@example.com', password_hash: voterHash,
-      role: 'VOTER', status: 'ACTIVE',
-      first_name: 'Aminata', last_name: 'Coulibaly',
-      date_of_birth: new Date('1995-08-22'), phone_number: '+2250702345678',
-      commune_id: cYopougon.id, bureau_de_vote_id: bYopougon.id,
-    },
-  });
+  // ── Voters — Yopougon (Abidjan) ──────────────────────────────────────────
+  const uAminata = await prisma.user.upsert({ where: { email: 'aminata@example.com' }, update: {}, create: {
+    national_id: 'CI0087654321', email: 'aminata@example.com', password_hash: voterHash,
+    role: 'VOTER', status: 'ACTIVE',
+    first_name: 'Aminata', last_name: 'Coulibaly',
+    date_of_birth: new Date('1995-08-22'), phone_number: '+2250702345678',
+    commune_id: cYopougon.id, bureau_de_vote_id: bYopougon.id,
+  }});
+  const uOumar = await prisma.user.upsert({ where: { email: 'oumar@example.com' }, update: {}, create: {
+    national_id: 'CI0098765432', email: 'oumar@example.com', password_hash: voterHash,
+    role: 'VOTER', status: 'ACTIVE',
+    first_name: 'Oumar', last_name: 'Bamba',
+    date_of_birth: new Date('1988-11-15'), phone_number: '+2250702345679',
+    commune_id: cYopougon.id, bureau_de_vote_id: bYopougon.id,
+  }});
+  const uBintou = await prisma.user.upsert({ where: { email: 'bintou@example.com' }, update: {}, create: {
+    national_id: 'CI0109876543', email: 'bintou@example.com', password_hash: voterHash,
+    role: 'VOTER', status: 'ACTIVE',
+    first_name: 'Bintou', last_name: 'Traoré',
+    date_of_birth: new Date('1997-05-30'), phone_number: '+2250702345680',
+    commune_id: cYopougon.id, bureau_de_vote_id: bYopougon.id,
+  }});
 
-  await prisma.user.upsert({
-    where: { email: 'ibrahim@example.com' },
-    update: {},
-    create: {
-      national_id: 'CI0011223344', email: 'ibrahim@example.com', password_hash: voterHash,
-      role: 'VOTER', status: 'ACTIVE',
-      first_name: 'Ibrahim', last_name: 'Koné',
-      date_of_birth: new Date('1988-12-03'), phone_number: '+2250703456789',
-      commune_id: cBouake.id, bureau_de_vote_id: bBouake.id,
-    },
-  });
+  // ── Voters — Abobo (Abidjan) ─────────────────────────────────────────────
+  const uMamadou = await prisma.user.upsert({ where: { email: 'mamadou@example.com' }, update: {}, create: {
+    national_id: 'CI0120987654', email: 'mamadou@example.com', password_hash: voterHash,
+    role: 'VOTER', status: 'ACTIVE',
+    first_name: 'Mamadou', last_name: 'Diallo',
+    date_of_birth: new Date('1991-01-25'), phone_number: '+2250703456790',
+    commune_id: cAbobo.id, bureau_de_vote_id: bAbobo.id,
+  }});
+  const uNana = await prisma.user.upsert({ where: { email: 'nana@example.com' }, update: {}, create: {
+    national_id: 'CI0131098765', email: 'nana@example.com', password_hash: voterHash,
+    role: 'VOTER', status: 'ACTIVE',
+    first_name: 'Nana', last_name: 'Koné',
+    date_of_birth: new Date('1999-09-12'), phone_number: '+2250703456791',
+    commune_id: cAbobo.id, bureau_de_vote_id: bAbobo.id,
+  }});
+  const uDidier = await prisma.user.upsert({ where: { email: 'didier@example.com' }, update: {}, create: {
+    national_id: 'CI0141209876', email: 'didier@example.com', password_hash: voterHash,
+    role: 'VOTER', status: 'ACTIVE',
+    first_name: 'Didier', last_name: 'Gba',
+    date_of_birth: new Date('1986-04-03'), phone_number: '+2250703456792',
+    commune_id: cAbobo.id, bureau_de_vote_id: bAbobo.id,
+  }});
+
+  // ── Voter — Plateau (Abidjan) ────────────────────────────────────────────
+  const uYvonne = await prisma.user.upsert({ where: { email: 'yvonne@example.com' }, update: {}, create: {
+    national_id: 'CI0151320987', email: 'yvonne@example.com', password_hash: voterHash,
+    role: 'VOTER', status: 'ACTIVE',
+    first_name: 'Yvonne', last_name: 'Gnonsoa',
+    date_of_birth: new Date('1983-12-01'), phone_number: '+2250704567890',
+    commune_id: cPlateau.id, bureau_de_vote_id: bPlateau.id,
+  }});
+
+  // ── Voters — Bouaké (Gbêkê) ──────────────────────────────────────────────
+  const uIbrahim = await prisma.user.upsert({ where: { email: 'ibrahim@example.com' }, update: {}, create: {
+    national_id: 'CI0011223344', email: 'ibrahim@example.com', password_hash: voterHash,
+    role: 'VOTER', status: 'ACTIVE',
+    first_name: 'Ibrahim', last_name: 'Koné',
+    date_of_birth: new Date('1988-12-03'), phone_number: '+2250703456789',
+    commune_id: cBouake.id, bureau_de_vote_id: bBouake.id,
+  }});
+  const uAli = await prisma.user.upsert({ where: { email: 'ali@example.com' }, update: {}, create: {
+    national_id: 'CI0161431098', email: 'ali@example.com', password_hash: voterHash,
+    role: 'VOTER', status: 'ACTIVE',
+    first_name: 'Ali', last_name: 'Kourouma',
+    date_of_birth: new Date('1993-06-14'), phone_number: '+2250705678901',
+    commune_id: cBouake.id, bureau_de_vote_id: bBouake.id,
+  }});
+  const uFatima = await prisma.user.upsert({ where: { email: 'fatima@example.com' }, update: {}, create: {
+    national_id: 'CI0171542109', email: 'fatima@example.com', password_hash: voterHash,
+    role: 'VOTER', status: 'ACTIVE',
+    first_name: 'Fatima', last_name: 'Sanogo',
+    date_of_birth: new Date('1996-08-07'), phone_number: '+2250705678902',
+    commune_id: cBouake.id, bureau_de_vote_id: bBouake.id,
+  }});
+
+  // ── Voter — Yamoussoukro ─────────────────────────────────────────────────
+  const uPaul = await prisma.user.upsert({ where: { email: 'paul@example.com' }, update: {}, create: {
+    national_id: 'CI0181653210', email: 'paul@example.com', password_hash: voterHash,
+    role: 'VOTER', status: 'ACTIVE',
+    first_name: 'Paul', last_name: 'Koffi',
+    date_of_birth: new Date('1980-02-28'), phone_number: '+2250706789012',
+    commune_id: cYamoussoukro.id, bureau_de_vote_id: bYam2.id,
+  }});
+
+  console.log('✓ 14 voters + 1 admin seeded');
+
+  // ══════════════════════════════════════════════════════════════════════════
+  //  VOTES  (closed & published elections + partial votes in active ones)
+  //  Eligibility:
+  //    NATIONAL       → everyone
+  //    REGIONAL ABJ   → Cocody, Yopougon, Abobo, Plateau (rAbidjan)
+  //    REGIONAL GBEKE → Bouaké (rGbeke)
+  //    COMMUNAL COC   → Cocody voters
+  //    COMMUNAL YOP   → Yopougon voters
+  //    COMMUNAL ABO   → Abobo voters
+  // ══════════════════════════════════════════════════════════════════════════
+
+  // ── Présidentielle 2025 (NATIONAL — all 13 voters voted) ─────────────────
+  await seedVote(uKouassi.id, pres2025.id, p25_ouattara.id);
+  await seedVote(uPierre.id,  pres2025.id, p25_thiam.id);
+  await seedVote(uRachel.id,  pres2025.id, p25_ouattara.id);
+  await seedVote(uAminata.id, pres2025.id, p25_ouattara.id);
+  await seedVote(uOumar.id,   pres2025.id, p25_gbagbo.id);
+  await seedVote(uBintou.id,  pres2025.id, p25_ouattara.id);
+  await seedVote(uMamadou.id, pres2025.id, p25_ouattara.id);
+  await seedVote(uNana.id,    pres2025.id, p25_thiam.id);
+  await seedVote(uDidier.id,  pres2025.id, p25_kkb.id);
+  await seedVote(uYvonne.id,  pres2025.id, p25_thiam.id);
+  await seedVote(uIbrahim.id, pres2025.id, p25_gbagbo.id);
+  await seedVote(uAli.id,     pres2025.id, p25_ouattara.id);
+  await seedVote(uFatima.id,  pres2025.id, p25_ouattara.id);
+  await seedVote(uPaul.id,    pres2025.id, p25_ouattara.id);
+
+  // ── Référendum Nouvelle Constitution 2025 (NATIONAL — all voted) ──────────
+  await seedVote(uKouassi.id, ref2025.id, ref_oui.id);
+  await seedVote(uPierre.id,  ref2025.id, ref_oui.id);
+  await seedVote(uRachel.id,  ref2025.id, ref_non.id);
+  await seedVote(uAminata.id, ref2025.id, ref_oui.id);
+  await seedVote(uOumar.id,   ref2025.id, ref_oui.id);
+  await seedVote(uBintou.id,  ref2025.id, ref_oui.id);
+  await seedVote(uMamadou.id, ref2025.id, ref_non.id);
+  await seedVote(uNana.id,    ref2025.id, ref_oui.id);
+  await seedVote(uDidier.id,  ref2025.id, ref_oui.id);
+  await seedVote(uYvonne.id,  ref2025.id, ref_oui.id);
+  await seedVote(uIbrahim.id, ref2025.id, ref_non.id);
+  await seedVote(uAli.id,     ref2025.id, ref_oui.id);
+  await seedVote(uFatima.id,  ref2025.id, ref_oui.id);
+  await seedVote(uPaul.id,    ref2025.id, ref_oui.id);
+
+  // ── Régionales Abidjan (REGIONAL rAbidjan — Cocody/Yopougon/Abobo/Plateau) ─
+  await seedVote(uKouassi.id, regAbj.id, rAbj_diallo.id);
+  await seedVote(uPierre.id,  regAbj.id, rAbj_diallo.id);
+  await seedVote(uRachel.id,  regAbj.id, rAbj_lago.id);
+  await seedVote(uAminata.id, regAbj.id, rAbj_diallo.id);
+  await seedVote(uOumar.id,   regAbj.id, rAbj_gnamien.id);
+  await seedVote(uBintou.id,  regAbj.id, rAbj_diallo.id);
+  await seedVote(uMamadou.id, regAbj.id, rAbj_lago.id);
+  await seedVote(uNana.id,    regAbj.id, rAbj_diallo.id);
+  await seedVote(uDidier.id,  regAbj.id, rAbj_gnamien.id);
+  await seedVote(uYvonne.id,  regAbj.id, rAbj_diallo.id);
+
+  // ── Législatives Cocody (COMMUNAL cCocody — Cocody voters only) ───────────
+  await seedVote(uKouassi.id, legCoc.id, lCoc_kone.id);
+  await seedVote(uPierre.id,  legCoc.id, lCoc_brou.id);
+  await seedVote(uRachel.id,  legCoc.id, lCoc_kone.id);
+
+  // ── Municipales Abobo (COMMUNAL cAbobo — Abobo voters only) ─────────────
+  await seedVote(uMamadou.id, munAbo.id, mAbo_bamba.id);
+  await seedVote(uNana.id,    munAbo.id, mAbo_toure.id);
+  await seedVote(uDidier.id,  munAbo.id, mAbo_bamba.id);
+
+  // ── Régionales Gbêkê 2025 (REGIONAL rGbeke — Bouaké voters) ─────────────
+  await seedVote(uIbrahim.id, regGbeOld.id, rGbeO_kone.id);
+  await seedVote(uAli.id,     regGbeOld.id, rGbeO_coulibaly.id);
+  await seedVote(uFatima.id,  regGbeOld.id, rGbeO_kone.id);
+
+  // ── Législatives Nationales 2026 (EN_COURS NATIONAL — partial votes) ─────
+  await seedVote(uKouassi.id, legNat.id, lNat_coulibaly.id);
+  await seedVote(uAminata.id, legNat.id, lNat_dosso.id);
+  await seedVote(uIbrahim.id, legNat.id, lNat_soro.id);
+  await seedVote(uPaul.id,    legNat.id, lNat_coulibaly.id);
+
+  // ── Régionales Gbêkê 2026 (EN_COURS REGIONAL — partial votes) ───────────
+  await seedVote(uIbrahim.id, regGbe.id, rGbe_navigué.id);
+
+  // ── Municipales Yopougon 2026 (EN_COURS COMMUNAL — partial votes) ────────
+  await seedVote(uAminata.id, munYop.id, mYop_ouattara.id);
+  await seedVote(uOumar.id,   munYop.id, mYop_kobenan.id);
+
+  // ── Référendum Réforme Électorale 2026 (EN_COURS NATIONAL — partial) ─────
+  await seedVote(uKouassi.id, refElec.id, refE_oui.id);
+  await seedVote(uAminata.id, refElec.id, refE_oui.id);
+  await seedVote(uIbrahim.id, refElec.id, refE_non.id);
+  await seedVote(uMamadou.id, refElec.id, refE_oui.id);
+
+  console.log('✓ Votes seeded');
 
   // ══════════════════════════════════════════════════════════════════════════
   console.log('\n✓ Seed complete');
-  console.log('─────────────────────────────────────────────────────────────');
+  console.log('─────────────────────────────────────────────────────────────────────');
   console.log('  Geography: 27 regions  |  75 départements  |  ~87 communes');
-  console.log('─────────────────────────────────────────────────────────────');
+  console.log('─────────────────────────────────────────────────────────────────────');
+  console.log('  PUBLIE   Présidentielle 2025              (national, ended -120d)');
+  console.log('  PUBLIE   Référendum Nouvelle Constitution (national, ended -60d)');
+  console.log('  CLOS     Régionales District Abidjan      (regional, ended -14d)');
+  console.log('  CLOS     Législatives Cocody              (communal, ended -5d)');
+  console.log('  CLOS     Municipales Abobo                (communal, ended -3d)');
+  console.log('  CLOS     Régionales Gbêkê 2025            (regional, ended -30d)');
+  console.log('  EN_COURS Législatives Nationales 2026     (national,  -3h → +8h)');
+  console.log('  EN_COURS Régionales Gbêkê 2026            (regional,  -2h → +10h)');
+  console.log('  EN_COURS Municipales Yopougon             (communal,  -2h → +10h)');
+  console.log('  EN_COURS Référendum Réforme Électorale    (national,  -1h → +12h)');
+  console.log('  OUVERT   Municipales Cocody               (communal,  +2d)');
+  console.log('  OUVERT   Référendum Réforme Foncière      (national,  +7d)');
+  console.log('  OUVERT   Présidentielle 2026              (national,  +15d)');
+  console.log('─────────────────────────────────────────────────────────────────────');
   console.log('  Admin:   admin@agora.gov      / Admin@12345');
-  console.log('  Voter 1: kouassi@example.com  / Voter@12345  (Cocody, ABJ)');
-  console.log('  Voter 2: aminata@example.com  / Voter@12345  (Yopougon, ABJ)');
-  console.log('  Voter 3: ibrahim@example.com  / Voter@12345  (Bouaké, GBE)');
-  console.log('─────────────────────────────────────────────────────────────\n');
+  console.log('  Voter:   kouassi@example.com  / Voter@12345  (Cocody)    — can vote legNat, refElec');
+  console.log('  Voter:   aminata@example.com  / Voter@12345  (Yopougon)  — can vote regGbe? No. legNat');
+  console.log('  Voter:   ibrahim@example.com  / Voter@12345  (Bouaké)    — can vote legNat, regGbe');
+  console.log('  Voter:   pierre@example.com   / Voter@12345  (Cocody)');
+  console.log('  Voter:   oumar@example.com    / Voter@12345  (Yopougon)  — can vote munYop');
+  console.log('  Voter:   bintou@example.com   / Voter@12345  (Yopougon)  — can vote munYop, legNat');
+  console.log('  Voter:   mamadou@example.com  / Voter@12345  (Abobo)');
+  console.log('  Voter:   nana@example.com     / Voter@12345  (Abobo)');
+  console.log('  Voter:   didier@example.com   / Voter@12345  (Abobo)');
+  console.log('  Voter:   yvonne@example.com   / Voter@12345  (Plateau)');
+  console.log('  Voter:   ali@example.com      / Voter@12345  (Bouaké)    — can vote regGbe, legNat');
+  console.log('  Voter:   fatima@example.com   / Voter@12345  (Bouaké)    — can vote regGbe, legNat');
+  console.log('  Voter:   paul@example.com     / Voter@12345  (Yamoussoukro)');
+  console.log('─────────────────────────────────────────────────────────────────────\n');
 }
 
 main()
