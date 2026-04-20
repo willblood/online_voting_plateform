@@ -18,7 +18,9 @@
     "test:watch": "node --experimental-vm-modules node_modules/.bin/jest --watch",
     "test:cov": "node --experimental-vm-modules node_modules/.bin/jest --coverage",
     "test:debug": "node --inspect-brk --experimental-vm-modules node_modules/.bin/jest --runInBand",
-    "test:e2e": "jest --config ./test/jest-e2e.json"
+    "test:e2e": "jest --config ./test/jest-e2e.json",
+    "seed": "node --loader ts-node/esm --no-warnings prisma/seed.ts",
+    "seed:demo": "node --loader ts-node/esm --no-warnings prisma/seed.demo.ts"
   },
   "dependencies": {
     "@nestjs/common": "^11.0.1",
