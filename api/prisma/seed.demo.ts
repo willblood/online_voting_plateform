@@ -123,6 +123,19 @@ function voteWeight4(idx: number): number {
 }
 
 /**
+ * Deterministic vote distribution for 3 candidates:
+ *   0–49  → candidate[0]  (RHDP  ~50 %)
+ *   50–81 → candidate[1]  (PDCI  ~32 %)
+ *   82–99 → candidate[2]  (IND   ~18 %)
+ */
+function voteWeight3(idx: number): number {
+  const r = idx % 100;
+  if (r < 50) return 0;
+  if (r < 82) return 1;
+  return 2;
+}
+
+/**
  * Deterministic vote distribution for 2 options (referendum):
  *   0–67 → option[0]  (OUI ~68 %)
  *   68–99 → option[1]  (NON ~32 %)
@@ -557,7 +570,7 @@ async function main() {
   await voteAll(allVoters, pres25.id, [p25_ouat, p25_thiam, p25_gbag, p25_kkb], voteWeight4);
 
   // Régionales Abidjan 2025 — Abidjan-district voters only
-  await voteAll(abidjanVoters, regAbj25.id, [ra25_dial, ra25_lago, ra25_gnam], voteWeight4);
+  await voteAll(abidjanVoters, regAbj25.id, [ra25_dial, ra25_lago, ra25_gnam], voteWeight3);
 
   // Référendum Constitution 2025 — all voters
   await voteAll(allVoters, ref25.id, [r25_oui, r25_non], voteWeight2);
@@ -566,11 +579,11 @@ async function main() {
   await voteAll(allVoters, leg26.id, [l26_coul, l26_dosso, l26_bict, l26_soro], voteWeight4);
 
   // Municipales Cocody 2026 — Cocody voters only
-  await voteAll(cocodyVoters, munCoc26.id, [mc_yace, mc_assi, mc_akpata], voteWeight4);
+  await voteAll(cocodyVoters, munCoc26.id, [mc_yace, mc_assi, mc_akpata], voteWeight3);
 
   // ── CLOS: majority voted (70 % of Abobo voters) ────────────────────────
   const aboboVoted = aboboVoters.filter((_, i) => i % 10 < 7);
-  await voteAll(aboboVoted, munAbo26.id, [ma26_bamba, ma26_toure, ma26_kone], voteWeight4);
+  await voteAll(aboboVoted, munAbo26.id, [ma26_bamba, ma26_toure, ma26_kone], voteWeight3);
 
   // ── EN_COURS (April 20): partial votes (~25 %) ─────────────────────────
   // Voters at positions i % 4 === 0 have already voted.
@@ -580,7 +593,7 @@ async function main() {
 
   // Yopougon législatives: first 30 % of Yopougon voters have voted
   const yopAlreadyVoted = yopougonVoters.filter((_, i) => i % 10 < 3);
-  await voteAll(yopAlreadyVoted, legYop26.id, [ly26_gnene, ly26_kob, ly26_diallo], voteWeight4);
+  await voteAll(yopAlreadyVoted, legYop26.id, [ly26_gnene, ly26_kob, ly26_diallo], voteWeight3);
 
   // April 23 elections: no votes yet (they're OUVERT / future)
 
