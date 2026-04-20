@@ -122,11 +122,11 @@ export class ElectionsService {
       }));
   }
 
-  // ── GET /elections/public ─────────────────────────────────────────────
+  // ── GET /elections/browse (public — unauthenticated) ─────────────────
 
-  async findPublic() {
-    return this.prisma.election.findMany({
-      where: { status: 'PUBLIE' },
+  async findBrowseable() {
+    const elections = await this.prisma.election.findMany({
+      where: { status: { in: ['OUVERT', 'EN_COURS', 'PUBLIE'] } },
       include: {
         candidates: {
           include: {
@@ -138,8 +138,142 @@ export class ElectionsService {
           },
         },
         _count: { select: { votes: true } },
+        scope_region: { select: { name: true } },
+        scope_departement: { select: { name: true } },
+        scope_commune: { select: { name: true } },
+      },
+      orderBy: { end_time: 'asc' },
+    });
+
+    return elections.map((el) => ({
+      id: el.id,
+      title: el.title,
+      type: el.type,
+      status: el.status,
+      description: el.description,
+      geographic_scope: el.geographic_scope,
+      scope_name:
+        el.scope_region?.name ?? el.scope_departement?.name ?? el.scope_commune?.name ?? null,
+      start_time: el.start_time,
+      end_time: el.end_time,
+      round: el.round,
+      updated_at: el.updated_at,
+      total_votes: el._count.votes,
+      candidates: el.candidates.map((c) => ({
+        id: c.id,
+        first_name: c.first_name,
+        last_name: c.last_name,
+        party: c.party,
+        votes_count: el.status === 'PUBLIE' ? (c.results[0]?.votes_count ?? 0) : null,
+        registered_voters:
+          el.status === 'PUBLIE' ? (c.results[0]?.registered_voters ?? 0) : null,
+        turnout_percentage:
+          el.status === 'PUBLIE' ? Number(c.results[0]?.turnout_percentage ?? 0) : null,
+      })),
+    }));
+  }
+
+  // ── GET /elections/public ─────────────────────────────────────────────
+
+  async findPublic() {
+    const elections = await this.prisma.election.findMany({
+      where: { status: 'PUBLIE' },
+      include: {
+        candidates: {
+          include: {
+            party: { select: { name: true, acronym: true } },
+            results: {
+              select: {
+                scope: true,
+                scope_id: true,
+                votes_count: true,
+                registered_voters: true,
+                turnout_percentage: true,
+              },
+            },
+          },
+        },
+        _count: { select: { votes: true } },
       },
       orderBy: { end_time: 'desc' },
+    });
+
+    // Collect distinct region scope_ids to resolve names in bulk
+    const regionScopeIds = new Set<string>();
+    for (const el of elections) {
+      for (const cand of el.candidates) {
+        for (const r of cand.results) {
+          if (r.scope === 'REGIONAL' && r.scope_id) {
+            regionScopeIds.add(r.scope_id);
+          }
+        }
+      }
+    }
+
+    const regionMap = new Map<string, string>();
+    if (regionScopeIds.size > 0) {
+      const regions = await this.prisma.region.findMany({
+        where: { id: { in: [...regionScopeIds] } },
+        select: { id: true, name: true },
+      });
+      for (const reg of regions) regionMap.set(reg.id, reg.name);
+    }
+
+    return elections.map((el) => {
+      const nationalResults = el.candidates.map((c) => {
+        const nat = c.results.find((r) => r.scope === 'NATIONAL' && !r.scope_id);
+        return {
+          candidate_id: c.id,
+          first_name: c.first_name,
+          last_name: c.last_name,
+          party: c.party,
+          votes_count: nat?.votes_count ?? 0,
+          registered_voters: nat?.registered_voters ?? 0,
+          turnout_percentage: nat ? Number(nat.turnout_percentage) : 0,
+        };
+      });
+
+      const totalVotes = nationalResults.reduce((s, r) => s + r.votes_count, 0);
+      const registeredVoters = nationalResults[0]?.registered_voters ?? 0;
+
+      // Group regional results by scope_id
+      const regionGroups = new Map<string, { region_name: string; candidates: typeof nationalResults }>();
+      for (const c of el.candidates) {
+        for (const r of c.results) {
+          if (r.scope === 'REGIONAL' && r.scope_id) {
+            if (!regionGroups.has(r.scope_id)) {
+              regionGroups.set(r.scope_id, {
+                region_name: regionMap.get(r.scope_id) ?? r.scope_id,
+                candidates: [],
+              });
+            }
+            regionGroups.get(r.scope_id)!.candidates.push({
+              candidate_id: c.id,
+              first_name: c.first_name,
+              last_name: c.last_name,
+              party: c.party,
+              votes_count: r.votes_count,
+              registered_voters: r.registered_voters,
+              turnout_percentage: Number(r.turnout_percentage),
+            });
+          }
+        }
+      }
+
+      return {
+        id: el.id,
+        title: el.title,
+        type: el.type,
+        updated_at: el.updated_at,
+        total_votes: totalVotes,
+        registered_voters: registeredVoters,
+        national_results: nationalResults,
+        regional_breakdown: [...regionGroups.entries()].map(([id, g]) => ({
+          region_id: id,
+          region_name: g.region_name,
+          candidates: g.candidates,
+        })),
+      };
     });
   }
 
@@ -296,6 +430,37 @@ export class ElectionsService {
       }
       throw e;
     }
+  }
+
+  // ── GET /elections/stats (admin) ─────────────────────────────────────
+
+  async getStats() {
+    const [totalElections, statusCounts, totalVoters, activeVoters, totalParties, totalVotesCast] =
+      await Promise.all([
+        this.prisma.election.count(),
+        this.prisma.election.groupBy({ by: ['status'], _count: { id: true } }),
+        this.prisma.user.count({ where: { role: 'VOTER' } }),
+        this.prisma.user.count({ where: { role: 'VOTER', status: 'ACTIVE' } }),
+        this.prisma.politicalParty.count(),
+        this.prisma.vote.count(),
+      ]);
+
+    const byStatus: Record<string, number> = {};
+    for (const row of statusCounts) byStatus[row.status] = row._count.id;
+
+    return {
+      elections: {
+        total: totalElections,
+        brouillon: byStatus['BROUILLON'] ?? 0,
+        ouvert: byStatus['OUVERT'] ?? 0,
+        en_cours: byStatus['EN_COURS'] ?? 0,
+        clos: byStatus['CLOS'] ?? 0,
+        publie: byStatus['PUBLIE'] ?? 0,
+      },
+      voters: { total: totalVoters, active: activeVoters },
+      parties: totalParties,
+      votes_cast: totalVotesCast,
+    };
   }
 
   // ── GET /elections/:id/results ────────────────────────────────────────

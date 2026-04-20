@@ -429,7 +429,7 @@ function ElectionRow({ el, onAdvance, advancing }: { el: Election; onAdvance: (e
       <td style={{ padding: "1rem 1.5rem" }}>
         <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "8px" }}>
           <Link
-            to={`/admin/elections/${el.id}/candidates`}
+            to={`/dashboard/elections/${el.id}/candidates`}
             title="Gérer les candidats"
             style={{ padding: "8px", background: "transparent", border: "none", borderRadius: "8px", cursor: "pointer", color: "#535f74", display: "flex", alignItems: "center", textDecoration: "none" }}
             onMouseEnter={e => (e.currentTarget as HTMLElement).style.background = "#ebe8e3"}
