@@ -10,7 +10,7 @@ const navItems = [
   { icon: "how_to_vote",    label: "Élections",      href: "/dashboard/elections" },
   { icon: "groups",         label: "Électeurs",      href: "/dashboard/users" },
   { icon: "flag",           label: "Partis",         href: "/dashboard/parties" },
-  { icon: "analytics",      label: "Résultats",      href: "/results" },
+  { icon: "analytics",      label: "Résultats",      href: "/dashboard/results" },
   { icon: "calendar_today", label: "Calendrier",     href: "#" },
   { icon: "person",         label: "Mon profil",     href: "#" },
   { icon: "settings",       label: "Settings",       href: "#" },

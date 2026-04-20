@@ -8,7 +8,7 @@ interface Props {
 const navItems = [
   { icon: "dashboard",      label: "Dashboard",       href: "/dashboard" },
   { icon: "how_to_vote",    label: "Mes Élections",   href: "/elections" },
-  { icon: "analytics",      label: "Résultats",       href: "#" },
+  { icon: "analytics",      label: "Résultats",       href: "/results" },
   { icon: "calendar_today", label: "Calendrier",      href: "#" },
   { icon: "person",         label: "Mon profil",      href: "#" },
   { icon: "menu_book",      label: "Guide électoral", href: "#" },

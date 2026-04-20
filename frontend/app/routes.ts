@@ -5,6 +5,7 @@ export default [
   route("login", "routes/login.tsx"),
   route("results", "routes/results.tsx"),
   route("dashboard", "routes/dashboard.tsx"),
+  route("dashboard/results", "routes/dashboard/results.tsx"),
   route("dashboard/elections", "routes/dashboard/elections.tsx"),
   route("dashboard/elections/:id", "routes/dashboard/election-detail.tsx"),
   route("dashboard/elections/:id/candidates", "routes/dashboard/election-candidates.tsx"),

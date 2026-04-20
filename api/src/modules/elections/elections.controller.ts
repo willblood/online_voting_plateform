@@ -33,6 +33,11 @@ export class ElectionsController {
     return this.electionsService.findPublic();
   }
 
+  @Get('browse')
+  findBrowseable() {
+    return this.electionsService.findBrowseable();
+  }
+
   // Authenticated routes — any role
   @UseGuards(JwtAuthGuard)
   @Get()

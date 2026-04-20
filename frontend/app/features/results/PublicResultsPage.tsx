@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Link } from "react-router";
+import { Link, useNavigate } from "react-router";
 
 const API = import.meta.env.VITE_API_URL ?? "http://localhost:3000";
 
@@ -229,6 +229,7 @@ function ElectionResultCard({ election }: { election: PublicElection }) {
 // ── Main Page ─────────────────────────────────────────────────────────────────
 
 export default function PublicResultsPage() {
+  const navigate = useNavigate();
   const [elections, setElections] = useState<PublicElection[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -252,10 +253,13 @@ export default function PublicResultsPage() {
           <span style={{ fontFamily: "Plus Jakarta Sans, sans-serif", fontSize: "1.125rem", fontWeight: 800, color: "#ffffff", letterSpacing: "-0.02em" }}>VOTI CI</span>
           <span style={{ fontSize: "0.7rem", color: "#64748b", fontWeight: 600, letterSpacing: "0.05em" }}>Résultats</span>
         </Link>
-        <Link to="/" style={{ display: "flex", alignItems: "center", gap: "6px", padding: "8px 16px", background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: "9999px", color: "#94a3b8", fontSize: "0.8rem", fontWeight: 600, textDecoration: "none" }}>
+        <button
+          onClick={() => navigate(-1)}
+          style={{ display: "flex", alignItems: "center", gap: "6px", padding: "8px 16px", background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: "9999px", color: "#94a3b8", fontSize: "0.8rem", fontWeight: 600, cursor: "pointer" }}
+        >
           <span className="material-symbols-outlined" style={{ fontSize: "16px" }}>arrow_back</span>
-          Accueil
-        </Link>
+          Retour
+        </button>
       </header>
 
       <main style={{ maxWidth: "900px", margin: "0 auto", padding: "3rem 2rem" }}>

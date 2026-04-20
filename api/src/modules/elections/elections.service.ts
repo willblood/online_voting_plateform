@@ -122,6 +122,57 @@ export class ElectionsService {
       }));
   }
 
+  // ── GET /elections/browse (public — unauthenticated) ─────────────────
+
+  async findBrowseable() {
+    const elections = await this.prisma.election.findMany({
+      where: { status: { in: ['OUVERT', 'EN_COURS', 'PUBLIE'] } },
+      include: {
+        candidates: {
+          include: {
+            party: { select: { name: true, acronym: true } },
+            results: {
+              where: { scope: 'NATIONAL' },
+              select: { votes_count: true, registered_voters: true, turnout_percentage: true },
+            },
+          },
+        },
+        _count: { select: { votes: true } },
+        scope_region: { select: { name: true } },
+        scope_departement: { select: { name: true } },
+        scope_commune: { select: { name: true } },
+      },
+      orderBy: { end_time: 'asc' },
+    });
+
+    return elections.map((el) => ({
+      id: el.id,
+      title: el.title,
+      type: el.type,
+      status: el.status,
+      description: el.description,
+      geographic_scope: el.geographic_scope,
+      scope_name:
+        el.scope_region?.name ?? el.scope_departement?.name ?? el.scope_commune?.name ?? null,
+      start_time: el.start_time,
+      end_time: el.end_time,
+      round: el.round,
+      updated_at: el.updated_at,
+      total_votes: el._count.votes,
+      candidates: el.candidates.map((c) => ({
+        id: c.id,
+        first_name: c.first_name,
+        last_name: c.last_name,
+        party: c.party,
+        votes_count: el.status === 'PUBLIE' ? (c.results[0]?.votes_count ?? 0) : null,
+        registered_voters:
+          el.status === 'PUBLIE' ? (c.results[0]?.registered_voters ?? 0) : null,
+        turnout_percentage:
+          el.status === 'PUBLIE' ? Number(c.results[0]?.turnout_percentage ?? 0) : null,
+      })),
+    }));
+  }
+
   // ── GET /elections/public ─────────────────────────────────────────────
 
   async findPublic() {

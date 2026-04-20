@@ -27,19 +27,22 @@ export function Navbar() {
 
         {/* Nav links */}
         <div className="hidden md:flex items-center gap-8">
-          {navLinks.map((link, i) => (
-            <a
-              key={link.label}
-              href={link.href}
-              className={`font-headline font-medium text-sm tracking-tight transition-all duration-300 hover:opacity-80 ${
-                i === 0
-                  ? "text-primary-container font-bold border-b-2 border-primary-container pb-1"
-                  : "text-slate-600 hover:text-primary-container"
-              }`}
-            >
-              {link.label}
-            </a>
-          ))}
+          {navLinks.map((link, i) => {
+            const cls = `font-headline font-medium text-sm tracking-tight transition-all duration-300 hover:opacity-80 ${
+              i === 0
+                ? "text-primary-container font-bold border-b-2 border-primary-container pb-1"
+                : "text-slate-600 hover:text-primary-container"
+            }`;
+            return link.href.startsWith("/") ? (
+              <Link key={link.label} to={link.href} className={cls}>
+                {link.label}
+              </Link>
+            ) : (
+              <a key={link.label} href={link.href} className={cls}>
+                {link.label}
+              </a>
+            );
+          })}
         </div>
 
         {/* Actions */}
